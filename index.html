@@ -1,127 +1,97 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automotive HMI Cluster</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ccircle%20cx='8'%20cy='8'%20r='7'%20fill='%23b2ff3a'/%3E%3C/svg%3E">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      :root{ --bg:#06080c; --lime:#b2ff3a; --dim:#7d8794; --text:#eaf2f7; }
+      *{ box-sizing:border-box; }
+      html,body{ margin:0; height:100%; background:var(--bg); color:var(--text);
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+      body{ display:flex; flex-direction:column; min-height:100vh; }
+
+      header{ display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+        padding:18px 34px; border-bottom:1px solid rgba(255,255,255,.06); }
+      .brand{ font-weight:800; letter-spacing:5px; font-size:19px; }
+      .brand b{ color:var(--lime); }
+      .byline{ color:var(--dim); font-size:13px; letter-spacing:1px; }
+
+      main{ flex:1; display:flex; align-items:center; justify-content:center; padding:26px; }
+      .stage{ position:relative; width:100%; max-width:1440px; aspect-ratio:16/9;
+        border-radius:16px; overflow:hidden; background:#000;
+        border:1px solid rgba(178,255,58,.30);
+        box-shadow:0 24px 70px rgba(0,0,0,.55); }
+      #unity-canvas{ width:100%; height:100%; display:block; }
+
+      #loading{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:20px; background:var(--bg); transition:opacity .5s; }
+      .lt{ font-weight:800; letter-spacing:7px; font-size:17px; }
+      .lt b{ color:var(--lime); }
+      #bar{ width:240px; height:4px; background:rgba(255,255,255,.10); border-radius:3px; overflow:hidden; }
+      #bar>i{ display:block; height:100%; width:100%; background:var(--lime);
+        transform:scaleX(0); transform-origin:left; transition:transform .2s; }
+      #pct{ color:var(--dim); font-size:12px; letter-spacing:3px; }
+
+      footer{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+        padding:13px 34px; border-top:1px solid rgba(255,255,255,.06); color:var(--dim);
+        font-size:12px; letter-spacing:.5px; }
+      .hint b{ color:var(--lime); }
+
+      @media (max-width:660px){
+        header,footer{ padding:12px 16px; }
+        .byline,footer .left{ display:none; }
+        .stage{ border-radius:10px; }
+      }
+    </style>
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+    <header>
+      <div class="brand">AUTOMOTIVE <b>HMI</b> CLUSTER</div>
+      <div class="byline">Real-time, data-driven instrument cluster — Yuhan Wu</div>
+    </header>
+
+    <main>
+      <div class="stage">
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        <div id="loading">
+          <div class="lt">HMI&nbsp;<b>CLUSTER</b></div>
+          <div id="bar"><i></i></div>
+          <div id="pct">LOADING 0%</div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">HMI adjust system</div>
-      </div>
-    </div>
+    </main>
+
+    <footer>
+      <div class="left">Built with Unity UI Toolkit · scenario &amp; weather driven</div>
+      <div class="hint">Press <b>`</b> to toggle controls · drag / click to interact</div>
+    </footer>
+
     <script>
       var canvas = document.querySelector("#unity-canvas");
-
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
-
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/WebGL.loader.js";
       var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/WebGL.data.unityweb",
-        frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
-        codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+        dataUrl: "Build/WebGL.data.unityweb",
+        frameworkUrl: "Build/WebGL.framework.js.unityweb",
+        codeUrl: "Build/WebGL.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "HMI adjust system",
+        companyName: "Yuhan Wu",
+        productName: "Automotive HMI Cluster",
         productVersion: "1.2.0",
-        showBanner: unityShowBanner,
       };
-
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
-      }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
-
-      document.body.appendChild(script);
-
+      var s = document.createElement("script");
+      s.src = "Build/WebGL.loader.js";
+      s.onload = function () {
+        createUnityInstance(canvas, config, function (p) {
+          document.querySelector("#bar > i").style.transform = "scaleX(" + p + ")";
+          document.querySelector("#pct").textContent = "LOADING " + Math.round(p * 100) + "%";
+        }).then(function () {
+          var l = document.querySelector("#loading");
+          l.style.opacity = "0";
+          setTimeout(function () { l.style.display = "none"; }, 550);
+        }).catch(function (msg) { alert(msg); });
+      };
+      document.body.appendChild(s);
     </script>
   </body>
 </html>
