@@ -147,7 +147,7 @@
           <div class="headunit">
             <div class="hu-status">
               <span class="clock" id="hu-clock">9:41</span>
-              <span class="right"><span class="dot"></span>Connected&nbsp;·&nbsp;22°C</span>
+              <span class="right"><span class="dot"></span><span id="hu-weather">Connected&nbsp;·&nbsp;22°C</span></span>
             </div>
 
             <div class="card nav">
@@ -224,10 +224,12 @@
       function tick(){ var el=document.getElementById("hu-clock"); if(el) el.textContent=fmt(new Date()); }
       tick(); setInterval(tick,10000);
 
-      /* live navigation: distance counts down, ETA + arrival recompute */
+      /* live navigation (mock until the Unity cluster links up and drives it) */
+      var linked = false;             /* true once Unity pushes scenario state */
       var dist = 2.3;                 /* miles remaining */
       var speed = 34;                 /* avg mph */
       function navTick(){
+        if (linked) return;           /* Unity is driving the nav now */
         dist = Math.round((dist - 0.1) * 10) / 10;
         if (dist <= 0.2) dist = 3.4;  /* next leg */
         var mins = Math.max(1, Math.round(dist / speed * 60));
@@ -236,6 +238,36 @@
         var eEl=document.getElementById("nav-eta");  if(eEl) eEl.textContent = mins + " min · arrive " + fmt(arrive);
       }
       navTick(); setInterval(navTick, 2600);
+
+      /* ---- Unity scene linkage: head unit mirrors the live cluster scenario ---- */
+      var TURN_SVG = {
+        Left:     '<path d="M17 19V11a3 3 0 0 0-3-3H7"/><path d="M11 4L6 8l5 4"/>',
+        Right:    '<path d="M7 19V11a3 3 0 0 1 3-3h7"/><path d="M13 4l5 4-5 4"/>',
+        Slight:   '<path d="M8 20v-7l7-7"/><path d="M11 6h5v5"/>',
+        Straight: '<path d="M12 20V6"/><path d="M6 11l6-6 6 6"/>'
+      };
+      var WEATHER_LABEL = { Clear:"Clear", Rain:"Rain", Thunderstorm:"Storm", Sandstorm:"Sandstorm" };
+      function setArrow(turn){ var a=document.querySelector(".nav .arrow svg"); if(a) a.innerHTML = TURN_SVG[turn] || TURN_SVG.Straight; }
+      function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent = t; }
+      window.HmiOnState = function (jsonStr) {
+        var d; try { d = JSON.parse(jsonStr); } catch (e) { return; }
+        linked = true;
+        setText("hu-weather", (WEATHER_LABEL[d.weather] || "Clear") + " · 22°C");
+        if (d.navTurn === "None") {
+          setArrow("Straight");
+          setText("nav-road", "No active route");
+          setText("nav-dist", "—");
+          setText("nav-eta", "Route guidance off");
+          return;
+        }
+        setArrow(d.navTurn);
+        if (d.navStreet) setText("nav-road", d.navStreet);
+        var miles = (d.navDist || 0) / 1609;
+        setText("nav-dist", miles.toFixed(1));
+        var mph = d.speed > 1 ? d.speed * 0.621 : 30;
+        var mins = Math.max(1, Math.round(miles / mph * 60));
+        setText("nav-eta", mins + " min · arrive " + fmt(new Date(Date.now() + mins * 60000)));
+      };
 
       /* live media progress */
       var mp = 0.42;
