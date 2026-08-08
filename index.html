@@ -7,10 +7,9 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ccircle%20cx='8'%20cy='8'%20r='7'%20fill='%232563eb'/%3E%3C/svg%3E">
     <style>
       :root{
-        --bg1:#eef2f8; --bg2:#d9e1ee; --surface:#ffffff;
-        --screen:#0a0d12; --screen2:#131b28; --blue:#2f7bff; --blue-deep:#2563eb;
-        --text:#16233b; --dim:#6b7a90; --line:rgba(20,40,80,.10);
-        --ink:#e9eef7; --dim2:#8593a8; --line2:rgba(255,255,255,.08);
+        --bg1:#eef2f8; --bg2:#d9e1ee; --surface:#ffffff; --card:#eef3fb;
+        --blue:#2f7bff; --blue-deep:#2563eb;
+        --text:#16233b; --dim:#6b7a90; --line:rgba(20,40,80,.10); --line2:rgba(20,40,80,.07);
       }
       *{ box-sizing:border-box; }
       html,body{ margin:0; height:100%; color:var(--text);
@@ -31,33 +30,33 @@
       /* ---- instrument cluster (Unity) ---- */
       .cluster-pod{ flex:1 1 720px; max-width:820px; min-width:0; }
       .bezel{ position:relative; aspect-ratio:16/9; border-radius:22px; overflow:hidden;
-        background:var(--screen); padding:12px;
-        border:1px solid var(--line); box-shadow:0 22px 55px rgba(20,40,80,.16); }
+        background:var(--surface); padding:12px;
+        border:1px solid var(--line); box-shadow:0 22px 55px rgba(20,40,80,.14); }
       .screen{ position:relative; width:100%; height:100%; border-radius:13px; overflow:hidden; background:#000; }
       #unity-canvas{ width:100%; height:100%; display:block; }
       .podlabel{ margin:10px 4px 0; color:var(--dim); font-size:11px; letter-spacing:2px; text-transform:uppercase; }
 
       #loading{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
-        align-items:center; justify-content:center; gap:18px; background:var(--screen); transition:opacity .5s; }
-      .lt{ font-weight:700; letter-spacing:6px; font-size:15px; color:var(--ink); }
-      .lt b{ color:var(--blue); }
-      #bar{ width:220px; height:4px; background:rgba(255,255,255,.12); border-radius:3px; overflow:hidden; }
+        align-items:center; justify-content:center; gap:18px; background:var(--surface); transition:opacity .5s; }
+      .lt{ font-weight:700; letter-spacing:6px; font-size:15px; color:var(--text); }
+      .lt b{ color:var(--blue-deep); }
+      #bar{ width:220px; height:4px; background:rgba(20,40,80,.10); border-radius:3px; overflow:hidden; }
       #bar>i{ display:block; height:100%; width:100%; background:var(--blue);
         transform:scaleX(0); transform-origin:left; transition:transform .2s; }
-      #pct{ color:var(--dim2); font-size:11px; letter-spacing:3px; }
+      #pct{ color:var(--dim); font-size:11px; letter-spacing:3px; }
 
-      /* ---- center console / head unit ---- */
+      /* ---- center console / head unit (blue-white) ---- */
       .console{ flex:0 0 356px; max-width:356px; }
-      .headunit{ background:linear-gradient(180deg,#131b28,#0c121c); border-radius:22px;
-        border:1px solid var(--line); box-shadow:0 22px 55px rgba(20,40,80,.16);
-        padding:16px; color:var(--ink); display:flex; flex-direction:column; gap:14px; }
+      .headunit{ background:var(--surface); border-radius:22px;
+        border:1px solid var(--line); box-shadow:0 22px 55px rgba(20,40,80,.14);
+        padding:16px; display:flex; flex-direction:column; gap:14px; }
       .hu-status{ display:flex; align-items:center; justify-content:space-between;
-        font-size:12px; color:var(--dim2); letter-spacing:.5px; }
-      .hu-status .clock{ color:var(--ink); font-weight:600; letter-spacing:1px; }
+        font-size:12px; color:var(--dim); letter-spacing:.5px; }
+      .hu-status .clock{ color:var(--text); font-weight:600; letter-spacing:1px; }
       .hu-status .right{ display:flex; align-items:center; gap:9px; }
       .dot{ width:6px; height:6px; border-radius:50%; background:var(--blue); }
 
-      .card{ background:var(--screen2); border:1px solid var(--line2); border-radius:14px; }
+      .card{ background:var(--card); border:1px solid var(--line2); border-radius:14px; }
 
       .nav{ position:relative; height:132px; overflow:hidden; }
       .nav .map{ position:absolute; inset:0; width:100%; height:100%; }
@@ -66,41 +65,42 @@
         background:var(--blue); border-radius:11px; }
       .nav .arrow svg{ width:22px; height:22px; }
       .nav .road{ font-weight:600; font-size:15px; }
-      .nav .eta{ color:var(--dim2); font-size:12px; margin-top:2px; }
+      .nav .eta{ color:var(--dim); font-size:12px; margin-top:2px; }
       .nav .dist{ margin-left:auto; text-align:right; }
-      .nav .dist b{ font-size:17px; }
-      .nav .dist span{ display:block; color:var(--dim2); font-size:11px; }
+      .nav .dist b{ font-size:17px; color:var(--blue-deep); }
+      .nav .dist span{ display:block; color:var(--dim); font-size:11px; }
 
       .media{ display:flex; align-items:center; gap:12px; padding:12px; }
       .media .art{ width:46px; height:46px; border-radius:9px; flex:none;
-        background:linear-gradient(135deg,var(--blue),#7aa8ff); }
+        background:linear-gradient(135deg,var(--blue),#8fb6ff); }
       .media .meta{ min-width:0; flex:1; }
       .media .title{ font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .media .artist{ color:var(--dim2); font-size:12px; }
-      .media .prog{ height:3px; background:rgba(255,255,255,.12); border-radius:2px; margin-top:8px; overflow:hidden; }
-      .media .prog>i{ display:block; height:100%; width:42%; background:var(--blue); }
+      .media .artist{ color:var(--dim); font-size:12px; }
+      .media .prog{ height:3px; background:rgba(20,40,80,.12); border-radius:2px; margin-top:8px; overflow:hidden; }
+      .media .prog>i{ display:block; height:100%; width:100%; background:var(--blue);
+        transform:scaleX(.42); transform-origin:left; transition:transform .9s linear; }
       .media .ctrl{ display:flex; gap:6px; }
       .media .ctrl button{ width:30px; height:30px; border:none; border-radius:8px; cursor:pointer;
-        background:rgba(255,255,255,.06); color:var(--ink); display:flex; align-items:center; justify-content:center; }
+        background:rgba(47,123,255,.10); color:var(--blue-deep); display:flex; align-items:center; justify-content:center; }
       .media .ctrl button svg{ width:15px; height:15px; }
-      .media .ctrl .play{ background:var(--blue); }
+      .media .ctrl .play{ background:var(--blue); color:#fff; }
 
       .climate{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; }
       .climate .z{ text-align:center; }
       .climate .z b{ font-size:20px; font-weight:600; }
-      .climate .z span{ display:block; color:var(--dim2); font-size:10px; letter-spacing:1px; margin-top:2px; }
-      .climate .mid{ display:flex; align-items:center; gap:7px; color:var(--dim2); font-size:12px; }
+      .climate .z span{ display:block; color:var(--dim); font-size:10px; letter-spacing:1px; margin-top:2px; }
+      .climate .mid{ display:flex; align-items:center; gap:7px; color:var(--dim); font-size:12px; }
       .climate .mid svg{ width:20px; height:20px; }
 
       .dock{ display:flex; justify-content:space-between; gap:6px; }
-      .dock .app{ flex:1; height:52px; border-radius:12px; background:var(--screen2); border:1px solid var(--line2);
-        display:flex; align-items:center; justify-content:center; color:var(--dim2); }
+      .dock .app{ flex:1; height:52px; border-radius:12px; background:var(--card); border:1px solid var(--line2);
+        display:flex; align-items:center; justify-content:center; color:#8ea0bd; }
       .dock .app svg{ width:22px; height:22px; }
       .dock .app.active{ background:var(--blue); color:#fff; border-color:transparent; }
 
       /* ---- steering wheel silhouette (driver POV) ---- */
       .wheel{ position:absolute; left:50%; bottom:-190px; transform:translateX(-50%);
-        width:560px; height:560px; z-index:1; opacity:.9; pointer-events:none; }
+        width:560px; height:560px; z-index:1; opacity:.55; pointer-events:none; }
 
       .hint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; z-index:4;
         color:var(--dim); font-size:12px; letter-spacing:.5px; }
@@ -152,22 +152,22 @@
 
             <div class="card nav">
               <svg class="map" viewBox="0 0 356 132" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <rect width="356" height="132" fill="#0e1524"/>
-                <path d="M-20 96 L130 52 L220 84 L380 34" stroke="#1d2942" stroke-width="14" fill="none" stroke-linecap="round"/>
-                <path d="M60 -10 L108 70 L86 150" stroke="#1d2942" stroke-width="10" fill="none"/>
-                <path d="M270 -10 L232 62 L286 150" stroke="#1d2942" stroke-width="10" fill="none"/>
+                <rect width="356" height="132" fill="#e6edf8"/>
+                <path d="M-20 96 L130 52 L220 84 L380 34" stroke="#cdd8ea" stroke-width="14" fill="none" stroke-linecap="round"/>
+                <path d="M60 -10 L108 70 L86 150" stroke="#cdd8ea" stroke-width="10" fill="none"/>
+                <path d="M270 -10 L232 62 L286 150" stroke="#cdd8ea" stroke-width="10" fill="none"/>
                 <path d="M-20 96 L130 52 L220 84" stroke="#2f7bff" stroke-width="6" fill="none" stroke-linecap="round"/>
-                <circle cx="130" cy="52" r="7" fill="#2f7bff" stroke="#0e1524" stroke-width="3"/>
+                <circle cx="130" cy="52" r="7" fill="#2f7bff" stroke="#ffffff" stroke-width="3"/>
               </svg>
               <div class="navinfo">
                 <span class="arrow" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19V11a3 3 0 0 1 3-3h7"/><path d="M13 4l5 4-5 4"/></svg>
                 </span>
                 <span>
-                  <div class="road">I-405 N</div>
-                  <div class="eta">12 min · arrive 8:53</div>
+                  <div class="road" id="nav-road">I-405 N</div>
+                  <div class="eta" id="nav-eta">12 min · arrive 8:53</div>
                 </span>
-                <span class="dist"><b>2.3</b><span>MILES</span></span>
+                <span class="dist"><b id="nav-dist">2.3</b><span>MILES</span></span>
               </div>
             </div>
 
@@ -176,11 +176,11 @@
               <div class="meta">
                 <div class="title">Midnight City</div>
                 <div class="artist">M83</div>
-                <div class="prog"><i></i></div>
+                <div class="prog"><i id="media-prog"></i></div>
               </div>
               <div class="ctrl">
                 <button aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
-                <button class="play" aria-label="Pause"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+                <button class="play" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
                 <button aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
               </div>
             </div>
@@ -206,21 +206,46 @@
       </div>
 
       <svg class="wheel" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="100" cy="100" r="92" stroke="#20304d" stroke-width="14" opacity=".9"/>
-        <circle cx="100" cy="100" r="20" fill="#20304d"/>
-        <path d="M100 120 V180" stroke="#20304d" stroke-width="13" stroke-linecap="round"/>
-        <path d="M84 108 L28 150" stroke="#20304d" stroke-width="13" stroke-linecap="round"/>
-        <path d="M116 108 L172 150" stroke="#20304d" stroke-width="13" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="92" stroke="#8aa0c4" stroke-width="14"/>
+        <circle cx="100" cy="100" r="20" fill="#8aa0c4"/>
+        <path d="M100 120 V180" stroke="#8aa0c4" stroke-width="13" stroke-linecap="round"/>
+        <path d="M84 108 L28 150" stroke="#8aa0c4" stroke-width="13" stroke-linecap="round"/>
+        <path d="M116 108 L172 150" stroke="#8aa0c4" stroke-width="13" stroke-linecap="round"/>
       </svg>
 
       <div class="hint">Press <b>`</b> to toggle controls · drag / click the cluster to interact</div>
     </div>
 
     <script>
-      function tick(){ var d=new Date(),h=d.getHours(),m=d.getMinutes();
-        var el=document.getElementById("hu-clock"); if(el) el.textContent=h+":"+(m<10?"0"+m:m); }
+      var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
+      var fmt = function (d) { return d.getHours() + ":" + pad(d.getMinutes()); };
+
+      /* live clock */
+      function tick(){ var el=document.getElementById("hu-clock"); if(el) el.textContent=fmt(new Date()); }
       tick(); setInterval(tick,10000);
 
+      /* live navigation: distance counts down, ETA + arrival recompute */
+      var dist = 2.3;                 /* miles remaining */
+      var speed = 34;                 /* avg mph */
+      function navTick(){
+        dist = Math.round((dist - 0.1) * 10) / 10;
+        if (dist <= 0.2) dist = 3.4;  /* next leg */
+        var mins = Math.max(1, Math.round(dist / speed * 60));
+        var arrive = new Date(Date.now() + mins * 60000);
+        var dEl=document.getElementById("nav-dist"); if(dEl) dEl.textContent = dist.toFixed(1);
+        var eEl=document.getElementById("nav-eta");  if(eEl) eEl.textContent = mins + " min · arrive " + fmt(arrive);
+      }
+      navTick(); setInterval(navTick, 2600);
+
+      /* live media progress */
+      var mp = 0.42;
+      function mediaTick(){
+        mp += 0.03; if (mp > 1) mp = 0;
+        var m=document.getElementById("media-prog"); if(m) m.style.transform = "scaleX(" + mp.toFixed(3) + ")";
+      }
+      setInterval(mediaTick, 900);
+
+      /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
       var config = {
         dataUrl: "Build/WebGL.data.unityweb",
