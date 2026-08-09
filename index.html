@@ -104,7 +104,7 @@
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
       /* ---- LABEL section : record carousel (real tracks via SoundCloud) ---- */
-      .labelsec{ order:1; position:relative; padding:30px 0 40px; min-height:calc(100vh - 72px);
+      .labelsec{ order:2; position:relative; padding:30px 0 40px; min-height:calc(100vh - 116px);
         display:flex; flex-direction:column; justify-content:center; }
       .labelhead{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
       .lh-now{ text-align:center; min-width:0; flex:1; }
@@ -163,6 +163,40 @@
       .attrib{ text-align:center; margin-top:16px; color:var(--dim);
         font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; }
 
+      /* ---- black-and-white shop layer ---- */
+      .topright{ display:flex; align-items:center; gap:20px; }
+      .cart{ position:relative; display:flex; align-items:center; gap:8px; border:1px solid var(--line-ink);
+        background:none; color:var(--ink); cursor:pointer; padding:8px 14px; font:inherit; font-size:11px;
+        font-weight:700; letter-spacing:.14em; text-transform:uppercase; transition:background .15s, color .15s; }
+      .cart:hover{ background:var(--ink); color:var(--paper); }
+      .cart svg{ width:16px; height:16px; }
+      .cart .cnt{ font-variant-numeric:tabular-nums; }
+      .cart.bump{ animation:bump .4s ease; }
+
+      .marquee{ order:1; overflow:hidden; white-space:nowrap; background:var(--ink); color:var(--paper);
+        margin:0 -44px; padding:12px 0; }
+      .mtrack{ display:inline-block; will-change:transform; animation:marq 26s linear infinite; }
+      .mtrack span{ font-size:11px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; padding:0 4px; }
+      .mtrack b{ color:var(--gold); font-weight:700; padding:0 10px; }
+
+      .badge{ position:absolute; top:8px; left:8px; z-index:3; background:var(--ink); color:var(--paper);
+        font-size:9px; font-weight:700; letter-spacing:.14em; padding:4px 8px; text-transform:uppercase; }
+      .badge.sold{ background:none; color:var(--ink); border:1px solid var(--line-ink); }
+      .buy{ display:flex; align-items:center; justify-content:center; gap:12px; margin-top:2px; }
+      .price{ font-weight:700; font-size:13px; color:var(--ink); font-variant-numeric:tabular-nums; }
+      .add{ border:1px solid var(--line-ink); background:none; color:var(--ink); font:inherit; font-size:10px;
+        font-weight:700; text-transform:uppercase; letter-spacing:.14em; padding:6px 13px; cursor:pointer;
+        transition:background .15s, color .15s; }
+      .add:hover{ background:var(--ink); color:var(--paper); }
+      .add.added{ background:var(--ink); color:var(--paper); }
+      .add.sold{ border-color:var(--line); color:var(--dim); cursor:default; text-decoration:line-through; }
+
+      #toast{ position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(20px); z-index:10000;
+        background:var(--ink); color:var(--paper); padding:12px 22px; font-size:11px; font-weight:700;
+        letter-spacing:.14em; text-transform:uppercase; opacity:0; pointer-events:none;
+        transition:opacity .3s ease, transform .3s ease; }
+      #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
       .footer{ order:4; border-top:1px solid var(--line); padding:20px 0 28px; text-align:center;
         color:var(--dim); font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
       .footer b{ color:var(--gold); }
@@ -190,10 +224,14 @@
       @keyframes road{ to{ stroke-dashoffset:-26; } }
       @keyframes draw{ to{ stroke-dashoffset:0; } }
       @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+      @keyframes marq{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+      @keyframes bump{ 0%,100%{ transform:scale(1); } 40%{ transform:scale(1.14); } }
       @media (prefers-reduced-motion:reduce){
         .card.now .disc{ animation:none; }
         .card{ transition:none; }
         .live{ animation:none; }
+        .mtrack{ animation:none; }
+        .cart.bump{ animation:none; }
         #transition.show .carbob, #transition.show .wheel-g, #transition.show .road-dash, #transition.show .car-body{ animation:none; }
         .car-body{ stroke-dashoffset:0; }
       }
@@ -208,6 +246,7 @@
       @media (max-width:600px){
         .cockpit{ padding:0 18px; }
         .byline{ display:none; }
+        .marquee{ margin:0 -18px; }
         .carousel{ gap:24px; padding:20px calc(50% - 80px); }
         .card{ width:160px; } .disc-wrap{ width:150px; height:150px; } .cprog{ width:150px; }
       }
@@ -224,8 +263,19 @@
           </svg>
           <span>Automotive <b>HMI</b> Cluster</span>
         </div>
-        <div class="byline">Real-time data-driven cockpit — Yuhan Wu</div>
+        <div class="topright">
+          <div class="byline">Real-time data-driven cockpit — Yuhan Wu</div>
+          <button class="cart" id="cart" aria-label="Bag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+            Bag <span class="cnt" id="cartcnt">0</span>
+          </button>
+        </div>
       </header>
+
+      <div class="marquee" aria-hidden="true"><div class="mtrack">
+        <span>New drop</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Worldwide shipping</span><b>✦</b><span>No Art records</span><b>✦</b><span>Vinyl only</span><b>✦</b>
+        <span>New drop</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Worldwide shipping</span><b>✦</b><span>No Art records</span><b>✦</b><span>Vinyl only</span><b>✦</b>
+      </div></div>
 
       <div class="deck">
         <div class="cluster-pod">
@@ -344,6 +394,8 @@
       <div class="tcap">Entering the&nbsp;<b>cockpit</b>&nbsp;…</div>
     </div>
 
+    <div id="toast" aria-live="polite"></div>
+
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <script>
       var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
@@ -446,11 +498,19 @@
         for(var i=0;i<RSOUNDS.length;i++){
           var s=RSOUNDS[i], col=GOLD[i%GOLD.length];
           var art = s.art ? '<img class="art" src="'+esc(s.art)+'" alt="" draggable="false">' : '';
-          html+='<button class="card" data-i="'+i+'">'
+          var sold = (i===2), ltd = (i===0 || i===4);
+          var price = "€" + (16 + (i%4)*2).toFixed(2);
+          var badge = sold ? '<span class="badge sold">Sold out</span>' : (ltd ? '<span class="badge">Ltd</span>' : '');
+          var buy = '<span class="buy"><span class="price">'+price+'</span>'
+                  + (sold ? '<button class="add sold" data-i="'+i+'">Sold out</button>'
+                          : '<button class="add" data-i="'+i+'">Add</button>') + '</span>';
+          html+='<div class="card" data-i="'+i+'" role="button" tabindex="0">'
               +'<span class="disc-wrap"><span class="disc"><span class="vinyl">'+vinyl(col)+'</span>'+art+'<span class="hole"></span></span>'
+              +badge
               +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span></span></span>'
               +'<span class="cprog"><i></i></span>'
-              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(s.artist)+'</span></button>';
+              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(s.artist)+'</span>'
+              +buy+'</div>';
         }
         el.innerHTML=html;
         var cards=el.querySelectorAll(".card");
@@ -468,6 +528,25 @@
         if(playing && i===cur){ widget.pause(); }
         else { playIndex(i); enterCockpit(); }
       }
+
+      /* black-and-white shop: add-to-bag (prototype only — no checkout) */
+      var bag=[];
+      function showToast(t){
+        var el=document.getElementById("toast"); if(!el) return;
+        el.textContent=t; el.classList.add("show");
+        clearTimeout(showToast._t); showToast._t=setTimeout(function(){ el.classList.remove("show"); }, 1700);
+      }
+      function addToBag(i, btn){
+        var s=RSOUNDS[i]; if(!s) return;
+        bag.push(s.title);
+        var c=document.getElementById("cartcnt"); if(c) c.textContent=bag.length;
+        var cart=document.getElementById("cart"); if(cart){ cart.classList.remove("bump"); void cart.offsetWidth; cart.classList.add("bump"); }
+        showToast("Added — "+s.title);
+        if(btn){ btn.classList.add("added"); btn.textContent="Added"; setTimeout(function(){ btn.classList.remove("added"); btn.textContent="Add"; }, 1200); }
+      }
+      (function(){ var cart=document.getElementById("cart"); if(cart) cart.addEventListener("click", function(){
+        showToast(bag.length ? ("Bag — "+bag.length+" item"+(bag.length>1?"s":"")+" · prototype") : "Your bag is empty");
+      }); })();
 
       /* transport + gestures */
       (function(){
@@ -503,6 +582,8 @@
         el.addEventListener("pointercancel", release);
         el.addEventListener("click", function(e){
           if(moved){ moved=false; return; }
+          var add=e.target.closest && e.target.closest(".add");
+          if(add){ if(!add.classList.contains("sold")) addToBag(+add.getAttribute("data-i"), add); return; }
           var card=e.target.closest && e.target.closest(".card"); if(!card) return;
           toggleIndex(+card.getAttribute("data-i"));
         });
