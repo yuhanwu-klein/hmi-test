@@ -115,26 +115,34 @@
       .ctrl .play{ width:38px; height:38px; border:1px solid var(--line-ink); }
       .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
 
-      .lprog{ height:2px; background:var(--line); margin:18px 0 4px; overflow:hidden; }
-      .lprog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
-      #label.playing .lprog>i{ animation:prog 26s linear infinite; }
-
       .carousel{ display:flex; gap:34px; overflow-x:auto; scrollbar-width:none; cursor:grab;
         user-select:none; scroll-snap-type:x mandatory; scroll-behavior:smooth;
-        -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:22px calc(50% - 105px); }
+        -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:26px calc(50% - 105px); }
       .carousel.dragging{ cursor:grabbing; scroll-behavior:auto; }
       .carousel::-webkit-scrollbar{ display:none; }
       .card{ flex:0 0 auto; width:210px; scroll-snap-align:center; background:none; border:none; padding:0;
-        cursor:pointer; color:inherit; display:flex; flex-direction:column; align-items:center; gap:16px;
+        cursor:pointer; color:inherit; display:flex; flex-direction:column; align-items:center; gap:12px;
         opacity:0; transform:translateY(22px) scale(.9);
         transition:opacity .5s ease, transform .55s cubic-bezier(.22,1.15,.36,1); }
       .card.revealed{ opacity:.5; transform:none; }
       .card.revealed.active{ opacity:1; }
-      .card .vinyl{ width:200px; height:200px; display:block; transition:transform .25s; }
+      .disc-wrap{ position:relative; width:200px; height:200px; transition:transform .25s; }
+      .card.active .disc-wrap{ transform:scale(1.06); }
+      .card .vinyl{ position:absolute; inset:0; }
       .card .vinyl svg{ width:100%; height:100%; display:block; }
-      .card.active .vinyl{ transform:scale(1.06); }
-      .card.active .vinyl svg circle:first-child{ /* keep */ }
-      #label.playing .card.active .vinyl{ animation:spin 3.6s linear infinite; transform:scale(1.06); }
+      .card.now .vinyl{ animation:spin 3.6s linear infinite; }
+      .cover{ position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
+        background:rgba(12,11,10,0); opacity:0; transition:opacity .2s ease, background .2s ease; }
+      .card:hover .cover{ opacity:1; background:rgba(12,11,10,.5); }
+      .card.now .cover{ opacity:1; background:rgba(12,11,10,.34); }
+      .pbtn{ width:54px; height:54px; border-radius:50%; background:var(--gold); color:#0e0e0d;
+        display:flex; align-items:center; justify-content:center; transform:scale(.6); transition:transform .2s ease; }
+      .card:hover .pbtn, .card.now .pbtn{ transform:scale(1); }
+      .pbtn svg{ width:22px; height:22px; }
+      .cprog{ width:200px; height:2px; background:var(--line); overflow:hidden; opacity:0; transition:opacity .2s; }
+      .card:hover .cprog, .card.now .cprog{ opacity:1; }
+      .cprog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
+      .card.now .cprog>i{ animation:prog 26s linear infinite; }
       .card .ct{ font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink);
         max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .card .ca{ font-size:11px; color:var(--dim); letter-spacing:.04em; }
@@ -144,12 +152,12 @@
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .footer b{ color:var(--gold); }
 
-      @keyframes spin{ to{ transform:scale(1.06) rotate(360deg); } }
+      @keyframes spin{ to{ transform:rotate(360deg); } }
       @keyframes prog{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
       @media (prefers-reduced-motion:reduce){
-        #label.playing .card.active .vinyl{ animation:none; }
-        #label.playing .lprog>i{ animation:none; transform:scaleX(.5); }
+        .card.now .vinyl{ animation:none; }
+        .card.now .cprog>i{ animation:none; transform:scaleX(.5); }
         .card{ transition:none; }
         .live{ animation:none; }
       }
@@ -278,7 +286,6 @@
             </div>
           </div>
         </div>
-        <div class="lprog"><i id="media-prog"></i></div>
         <div class="carousel" id="carousel"></div>
       </section>
 
@@ -383,17 +390,27 @@
           stepN++; nextT += spb;
         }
       }
+      var PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      var PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
       function setPlayIcon(p){
         var b=document.getElementById("playbtn"); if(!b) return;
-        b.innerHTML = p
-          ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'
-          : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        b.innerHTML = p ? PAUSE_SVG : PLAY_SVG;
         b.setAttribute("aria-label", p ? "Pause" : "Play");
+      }
+      function setCardIcons(){
+        var cards=document.querySelectorAll("#carousel .card");
+        for(var i=0;i<cards.length;i++){
+          var isNow = playing && i===cur;
+          cards[i].classList.toggle("now", isNow);
+          var pb=cards[i].querySelector(".pbtn");
+          if(pb) pb.innerHTML = isNow ? PAUSE_SVG : PLAY_SVG;
+        }
       }
       function reflect(){
         var pl=document.getElementById("label"); if(pl) pl.classList.toggle("playing", playing);
         setText("pl-state", playing ? "Playing" : "Paused");
         setPlayIcon(playing);
+        setCardIcons();
       }
       function startPlay(){
         ensureAudio(); if(AC.state==="suspended") AC.resume();
@@ -422,19 +439,25 @@
         for(var i=0;i<cards.length;i++) cards[i].classList.toggle("active", i===cur);
         if(center) centerCard(cur, true);
       }
-      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(true); if(!playing) startPlay(); }
+      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(true); if(!playing) startPlay(); else reflect(); }
       function buildCarousel(){
         var el=document.getElementById("carousel"); if(!el) return;
         var html="";
         for(var i=0;i<RECORDS.length;i++){
           var r=RECORDS[i];
-          html+='<button class="card" data-i="'+i+'"><span class="vinyl">'+vinyl(r.col)+'</span>'
+          html+='<button class="card" data-i="'+i+'">'
+              +'<span class="disc-wrap"><span class="vinyl">'+vinyl(r.col)+'</span>'
+              +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span></span></span>'
+              +'<span class="cprog"><i></i></span>'
               +'<span class="ct">'+r.t+'</span><span class="ca">'+r.a+'</span></button>';
         }
         el.innerHTML=html;
         var cards=el.querySelectorAll(".card");
         for(var j=0;j<cards.length;j++)
-          cards[j].addEventListener("click", function(){ selectRecord(+this.getAttribute("data-i")); });
+          cards[j].addEventListener("click", function(){
+            var i=+this.getAttribute("data-i");
+            if(playing && i===cur) stopPlay(); else selectRecord(i);
+          });
         /* pop each record in, one by one (fade + rise) */
         for(var k=0;k<cards.length;k++)
           (function(c,idx){ setTimeout(function(){ c.classList.add("revealed"); }, 160 + idx*130); })(cards[k], k);
