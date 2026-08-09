@@ -608,7 +608,7 @@
               var s=sounds[i]; if(!s || !s.title) continue;
               var art=(s.artwork_url || (s.user && s.user.avatar_url) || "");
               if(art) art=art.replace("-large","-t200x200");
-              RSOUNDS.push({ title:s.title, artist:(s.user && s.user.username) || "No Art", art:art });
+              RSOUNDS.push({ title:s.title, artist:(s.user && s.user.username) || "", art:art });
             }
             if(RSOUNDS.length===0) RSOUNDS.push({ title:"Road Tape", artist:"", art:"" });
             buildCarousel(); updateMeta(false); setPlayIcon(false);
