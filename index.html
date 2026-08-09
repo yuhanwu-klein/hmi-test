@@ -15,8 +15,10 @@
         --gold:#b0894e; --gold-deep:#8f6d38; --gold-soft:#ece1cd;
         --line:#e2ddd1; --line-ink:#121110; --screen:#0a0a0a;
         --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+        --cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23111110'/%3E%3Ccircle cx='11' cy='13' r='2.2' fill='%23fff'/%3E%3Ccircle cx='21' cy='13' r='2.2' fill='%23fff'/%3E%3Cpath d='M10 18.5 Q16 24.5 22 18.5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") 16 16, auto;
       }
       *{ box-sizing:border-box; }
+      *{ cursor: var(--cursor) !important; }
       html,body{ margin:0; min-height:100%; color:var(--ink-2);
         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
         -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
