@@ -102,10 +102,13 @@
       .ctrl .play{ width:34px; height:34px; border:1px solid var(--line-ink); }
       .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
 
-      .crate{ display:flex; gap:12px; margin-top:15px; overflow-x:auto; scrollbar-width:none; }
+      .crate{ display:flex; gap:12px; margin-top:15px; overflow-x:auto; scrollbar-width:none;
+        cursor:grab; user-select:none; scroll-snap-type:x proximity; scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch; touch-action:pan-x; }
+      .crate.dragging{ cursor:grabbing; scroll-behavior:auto; }
       .crate::-webkit-scrollbar{ display:none; }
       .rec{ flex:0 0 auto; width:66px; background:none; border:none; padding:0; cursor:pointer; color:inherit;
-        display:flex; flex-direction:column; align-items:center; gap:6px; }
+        display:flex; flex-direction:column; align-items:center; gap:6px; scroll-snap-align:center; }
       .rec .mini{ width:54px; height:54px; display:block; transition:transform .15s; }
       .rec .mini svg{ width:100%; height:100%; display:block; }
       .rec:hover .mini{ transform:translateY(-3px); }
@@ -269,7 +272,7 @@
         </aside>
       </div>
 
-      <div class="hint">Press <b>`</b> to toggle controls — click a record to play music</div>
+      <div class="hint">Press <b>`</b> to toggle controls — swipe or click a record to play</div>
     </div>
 
     <script>
@@ -400,6 +403,8 @@
         var disc=document.getElementById("disc"); if(disc) disc.innerHTML=vinyl(r.col);
         var recs=document.querySelectorAll("#crate .rec");
         for(var i=0;i<recs.length;i++) recs[i].classList.toggle("active", i===cur);
+        var act=recs[cur], cr=document.getElementById("crate");
+        if(act&&cr) cr.scrollTo({ left: act.offsetLeft - cr.clientWidth/2 + act.clientWidth/2, behavior:"smooth" });
       }
       function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(); if(!playing) startPlay(); }
       function buildCrate(){
@@ -420,6 +425,30 @@
         var pb=document.getElementById("playbtn"); if(pb) pb.addEventListener("click", function(){ playing?stopPlay():startPlay(); });
         var pv=document.getElementById("prev");    if(pv) pv.addEventListener("click", function(){ selectRecord(cur-1); });
         var nx=document.getElementById("next");    if(nx) nx.addEventListener("click", function(){ selectRecord(cur+1); });
+
+        /* drag the record strip to slide through it (mouse + touch) */
+        var cr=document.getElementById("crate");
+        if(cr){
+          var down=false, sx=0, sl=0, moved=false;
+          cr.addEventListener("pointerdown", function(e){ down=true; moved=false; sx=e.clientX; sl=cr.scrollLeft;
+            cr.classList.add("dragging"); try{ cr.setPointerCapture(e.pointerId); }catch(x){} });
+          cr.addEventListener("pointermove", function(e){ if(!down) return; var dx=e.clientX-sx;
+            if(Math.abs(dx)>5) moved=true; cr.scrollLeft = sl - dx; });
+          var end=function(){ down=false; cr.classList.remove("dragging"); };
+          cr.addEventListener("pointerup", end); cr.addEventListener("pointercancel", end);
+          cr.addEventListener("click", function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+        }
+
+        /* swipe the disc / track area left–right to switch records */
+        var mrow=document.querySelector(".player .media-row");
+        if(mrow){
+          var t=false, tx=0, ty=0;
+          mrow.addEventListener("pointerdown", function(e){ if(e.target.closest(".ctrl")) return; t=true; tx=e.clientX; ty=e.clientY; });
+          mrow.addEventListener("pointerup", function(e){ if(!t) return; t=false;
+            var dx=e.clientX-tx, dy=e.clientY-ty;
+            if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)) selectRecord(cur + (dx<0?1:-1)); });
+          mrow.addEventListener("pointercancel", function(){ t=false; });
+        }
       })();
 
       /* Unity WebGL */
