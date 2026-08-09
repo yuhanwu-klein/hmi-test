@@ -32,7 +32,7 @@
       .byline{ color:var(--dim); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; }
 
       .deck{ position:relative; z-index:3; flex:1; display:flex; align-items:stretch;
-        justify-content:center; gap:36px; padding:48px 0 96px; }
+        justify-content:center; gap:36px; padding:48px 0 56px; }
 
       /* ---- instrument cluster (Unity) ---- */
       .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:840px; min-width:0; }
@@ -121,10 +121,6 @@
       .dock .app:hover{ color:var(--ink); }
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
-      /* ---- steering wheel silhouette (driver POV) ---- */
-      .wheel{ position:absolute; left:50%; bottom:-200px; transform:translateX(-50%);
-        width:560px; height:560px; z-index:1; opacity:.4; pointer-events:none; color:#b6ad99; }
-
       .hint{ position:absolute; left:0; right:0; bottom:16px; text-align:center; z-index:4;
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .hint b{ color:var(--gold); }
@@ -139,12 +135,10 @@
         .podlabel{ position:static; bottom:auto; margin:14px 0 0; }
         .console{ flex:none; width:100%; max-width:520px; }
         .headunit{ height:auto; }
-        .wheel{ width:420px; bottom:-240px; }
       }
       @media (max-width:600px){
         .cockpit{ padding:0 18px; }
         .byline{ display:none; }
-        .wheel{ display:none; }
       }
     </style>
   </head>
@@ -256,15 +250,6 @@
           </div>
         </aside>
       </div>
-
-      <svg class="wheel" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="100" cy="100" r="92" stroke="currentColor" stroke-width="9"/>
-        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="1.5" opacity=".5"/>
-        <circle cx="100" cy="100" r="17" fill="currentColor"/>
-        <path d="M100 117 V182" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
-        <path d="M85 106 L30 148" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
-        <path d="M115 106 L170 148" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
-      </svg>
 
       <div class="hint">Press <b>`</b> to toggle controls — drag or click the cluster to interact</div>
     </div>
