@@ -25,6 +25,8 @@
       body{ background:var(--paper); }
       .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
       .label{ text-transform:uppercase; letter-spacing:.2em; font-size:11.5px; font-weight:700; color:var(--dim); }
+      .label::before{ content:""; display:inline-block; width:7px; height:7px; background:var(--ink);
+        margin-right:9px; vertical-align:1px; }
 
       .cockpit{ position:relative; min-height:100vh; display:flex; flex-direction:column;
         max-width:1500px; margin:0 auto; padding:0 44px; }
@@ -44,6 +46,9 @@
       .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:840px; min-width:0; }
       .bezel{ position:relative; aspect-ratio:16/9; overflow:hidden;
         background:var(--panel); padding:12px; border:1px solid var(--line-ink); }
+      .bezel::before, .bezel::after{ content:""; position:absolute; width:7px; height:7px; background:var(--ink); z-index:2; }
+      .bezel::before{ top:5px; left:5px; }
+      .bezel::after{ bottom:5px; right:5px; }
       .screen{ position:relative; width:100%; height:100%; overflow:hidden; background:var(--screen); }
       #unity-canvas{ width:100%; height:100%; display:block; }
       .podlabel{ position:absolute; left:0; right:0; bottom:-32px; display:flex; align-items:center; gap:9px;
@@ -208,6 +213,8 @@
 
       .footer{ order:4; border-top:1px solid var(--line); padding:20px 0 28px; text-align:center;
         color:var(--dim); font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
+      .footer::before{ content:""; display:inline-block; width:7px; height:7px; background:var(--ink);
+        margin-right:10px; vertical-align:1px; }
       .footer b{ color:var(--gold); }
 
       /* ---- transition : full-screen line-art car overlay when a record starts ---- */
