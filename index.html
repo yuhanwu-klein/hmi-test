@@ -4,148 +4,145 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automotive HMI Cluster</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ccircle%20cx='8'%20cy='8'%20r='7'%20fill='%232563eb'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ccircle%20cx='8'%20cy='8'%20r='7'%20fill='%23b0894e'/%3E%3C/svg%3E">
     <style>
       :root{
-        --page-1:#eef3fa; --page-2:#dbe4f1;
-        --surface:#ffffff; --card:#f4f8fd; --card-2:#e9f1fc;
-        --ink:#0f1c30; --text:#3a4a63; --dim:#8291a8;
-        --accent:#2563eb; --accent-2:#4c86ff; --accent-soft:#e7effe;
-        --line:rgba(16,32,64,.08); --line-2:rgba(16,32,64,.05); --screen:#080b11;
-        --sh:0 1px 2px rgba(16,32,64,.05), 0 14px 34px rgba(16,32,64,.10);
+        --paper:#f6f3ec; --panel:#ffffff; --cream:#efe9dd;
+        --ink:#121110; --ink-2:#38352d; --dim:#8f8a7e;
+        --gold:#b0894e; --gold-deep:#8f6d38; --gold-soft:#ece1cd;
+        --line:#e2ddd1; --line-ink:#121110; --screen:#0a0a0a;
       }
       *{ box-sizing:border-box; }
-      html,body{ margin:0; height:100%; color:var(--text);
-        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      html,body{ margin:0; height:100%; color:var(--ink-2);
+        font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
         -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-      body{ min-height:100vh; background:radial-gradient(130% 100% at 50% -15%, var(--page-1), var(--page-2)); }
+      body{ min-height:100vh; background:var(--paper); }
       .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+      .label{ text-transform:uppercase; letter-spacing:.18em; font-size:10px; font-weight:700; color:var(--dim); }
 
       .cockpit{ position:relative; min-height:100vh; display:flex; flex-direction:column;
-        max-width:1460px; margin:0 auto; padding:22px 34px 0; overflow:hidden; }
+        max-width:1500px; margin:0 auto; padding:0 44px; overflow:hidden; }
 
-      .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:4; }
-      .brand{ display:flex; align-items:center; gap:11px; font-weight:700; letter-spacing:3.5px;
-        font-size:16px; color:var(--ink); }
-      .brand b{ color:var(--accent); font-weight:800; }
-      .brand .mark{ width:26px; height:26px; }
-      .byline{ color:var(--dim); font-size:12.5px; letter-spacing:.4px; }
+      .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:4;
+        padding:26px 0 20px; border-bottom:1px solid var(--line-ink); }
+      .brand{ display:flex; align-items:center; gap:13px; font-weight:700; letter-spacing:.22em;
+        font-size:15px; text-transform:uppercase; color:var(--ink); }
+      .brand b{ color:var(--gold); font-weight:700; }
+      .brand .mark{ width:24px; height:24px; }
+      .byline{ color:var(--dim); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; }
 
       .deck{ position:relative; z-index:3; flex:1; display:flex; align-items:stretch;
-        justify-content:center; gap:28px; padding:28px 0 92px; }
+        justify-content:center; gap:36px; padding:48px 0 96px; }
 
       /* ---- instrument cluster (Unity) ---- */
-      .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:830px; min-width:0; }
-      .bezel{ position:relative; aspect-ratio:16/9; border-radius:24px; overflow:hidden;
-        background:var(--surface); padding:14px; border:1px solid var(--line); box-shadow:var(--sh); }
-      .screen{ position:relative; width:100%; height:100%; border-radius:16px; overflow:hidden;
-        background:var(--screen); box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+      .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:840px; min-width:0; }
+      .bezel{ position:relative; aspect-ratio:16/9; overflow:hidden;
+        background:var(--panel); padding:12px; border:1px solid var(--line-ink); }
+      .screen{ position:relative; width:100%; height:100%; overflow:hidden; background:var(--screen); }
       #unity-canvas{ width:100%; height:100%; display:block; }
-      .podlabel{ position:absolute; left:6px; right:6px; bottom:-27px; display:flex; align-items:center; gap:8px;
-        color:var(--dim); font-size:12px; letter-spacing:.4px; }
-      .live{ width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block;
+      .podlabel{ position:absolute; left:0; right:0; bottom:-30px; display:flex; align-items:center; gap:9px;
+        text-transform:uppercase; letter-spacing:.18em; font-size:10px; font-weight:700; color:var(--dim); }
+      .live{ width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block;
         animation:pulse 2.4s ease-in-out infinite; }
 
       #loading{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
-        align-items:center; justify-content:center; gap:20px; background:var(--surface); transition:opacity .5s; }
-      .lt{ font-weight:700; letter-spacing:6px; font-size:14px; color:var(--ink); }
-      .lt b{ color:var(--accent); }
-      #bar{ width:220px; height:4px; background:rgba(16,32,64,.10); border-radius:3px; overflow:hidden; }
-      #bar>i{ display:block; height:100%; width:100%; background:var(--accent);
+        align-items:center; justify-content:center; gap:22px; background:var(--panel); transition:opacity .5s; }
+      .lt{ font-weight:700; letter-spacing:.4em; font-size:13px; text-transform:uppercase; color:var(--ink); }
+      .lt b{ color:var(--gold); }
+      #bar{ width:220px; height:2px; background:var(--line); overflow:hidden; }
+      #bar>i{ display:block; height:100%; width:100%; background:var(--gold);
         transform:scaleX(0); transform-origin:left; transition:transform .2s; }
-      #pct{ color:var(--dim); font-size:11px; letter-spacing:3px; }
+      #pct{ color:var(--dim); font-size:10px; letter-spacing:.3em; }
 
       /* ---- center console / head unit ---- */
-      .console{ flex:0 0 360px; max-width:360px; }
-      .headunit{ background:var(--surface); border-radius:24px; border:1px solid var(--line);
-        box-shadow:var(--sh); padding:17px; height:100%; display:flex; flex-direction:column;
-        justify-content:space-between; gap:13px; }
-      .hu-status{ display:flex; align-items:center; justify-content:space-between; padding:0 2px 1px; }
-      .hu-status .clock{ color:var(--ink); font-weight:600; font-size:15px; letter-spacing:.5px; }
-      .hu-status .right{ display:flex; align-items:center; gap:9px; }
+      .console{ flex:0 0 372px; max-width:372px; }
+      .headunit{ background:var(--panel); border:1px solid var(--line-ink); height:100%;
+        display:flex; flex-direction:column; }
+      .sec{ padding:18px 20px; border-top:1px solid var(--line); }
+      .sec:first-child{ border-top:none; }
+      .sechead{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:13px; }
+
+      .status{ display:flex; align-items:center; justify-content:space-between; }
+      .status .clock{ color:var(--ink); font-weight:700; font-size:17px; letter-spacing:.04em; }
+      .status .right{ display:flex; align-items:center; gap:11px; }
       .ic{ width:15px; height:15px; color:var(--dim); display:block; }
-      .wx{ background:var(--accent-soft); color:var(--accent); font-size:11px; font-weight:600;
-        letter-spacing:.2px; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+      .wx{ color:var(--ink); font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
 
-      .card{ background:var(--card); border:1px solid var(--line-2); border-radius:16px; }
+      .map-wrap{ position:relative; height:118px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
+      .map{ position:absolute; inset:0; width:100%; height:100%; }
+      .navinfo{ display:flex; align-items:center; gap:13px; }
+      .arrow{ width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
+        border:1px solid var(--line-ink); }
+      .arrow svg{ width:23px; height:23px; }
+      .nroad{ min-width:0; }
+      .road{ font-weight:700; font-size:14px; color:var(--ink); text-transform:uppercase; letter-spacing:.05em;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .eta{ color:var(--dim); font-size:11px; margin-top:3px; letter-spacing:.02em; }
+      .dist{ margin-left:auto; text-align:right; line-height:1; }
+      .dist b{ font-size:24px; font-weight:700; color:var(--gold); }
+      .dist span{ display:block; color:var(--dim); font-size:9.5px; letter-spacing:.2em; margin-top:3px; text-transform:uppercase; }
 
-      .nav{ position:relative; height:138px; overflow:hidden; }
-      .nav .map{ position:absolute; inset:0; width:100%; height:100%; }
-      .nav .navinfo{ position:absolute; left:14px; bottom:13px; right:14px; display:flex; align-items:center; gap:12px; }
-      .nav .arrow{ width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
-        background:var(--accent); border-radius:13px; box-shadow:0 6px 14px rgba(37,99,235,.35); }
-      .nav .arrow svg{ width:23px; height:23px; }
-      .nav .nroad{ min-width:0; }
-      .nav .road{ font-weight:600; font-size:15px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .nav .eta{ color:var(--dim); font-size:12px; margin-top:2px; }
-      .nav .dist{ margin-left:auto; text-align:right; line-height:1.05; }
-      .nav .dist b{ font-size:19px; font-weight:700; color:var(--accent); }
-      .nav .dist span{ display:block; color:var(--dim); font-size:10.5px; letter-spacing:.6px; margin-top:1px; }
-
-      .media{ display:flex; align-items:center; gap:13px; padding:13px; }
-      .media .art{ position:relative; width:48px; height:48px; border-radius:11px; flex:none; overflow:hidden;
-        background:linear-gradient(135deg,var(--accent),var(--accent-2)); }
-      .media .eq{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; gap:2.5px; padding:11px; }
-      .media .eq i{ width:3px; height:100%; border-radius:2px; background:rgba(255,255,255,.92);
+      .media-row{ display:flex; align-items:center; gap:14px; }
+      .art{ position:relative; width:48px; height:48px; flex:none; overflow:hidden; background:var(--ink); }
+      .eq{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; gap:3px; padding:12px; }
+      .eq i{ width:3px; height:100%; background:var(--gold);
         transform:scaleY(.4); transform-origin:bottom; animation:eq 1s ease-in-out infinite; }
-      .media .eq i:nth-child(2){ animation-delay:.22s; } .media .eq i:nth-child(3){ animation-delay:.44s; }
-      .media .meta{ min-width:0; flex:1; }
-      .media .title{ font-weight:600; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .media .artist{ color:var(--dim); font-size:12px; margin-top:1px; }
-      .media .prog{ height:3px; background:rgba(16,32,64,.10); border-radius:2px; margin-top:9px; overflow:hidden; }
-      .media .prog>i{ display:block; height:100%; width:100%; background:var(--accent);
+      .eq i:nth-child(2){ animation-delay:.22s; } .eq i:nth-child(3){ animation-delay:.44s; }
+      .meta{ min-width:0; flex:1; }
+      .mtitle{ font-weight:700; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .martist{ color:var(--dim); font-size:11.5px; margin-top:2px; letter-spacing:.02em; }
+      .prog{ height:2px; background:var(--line); margin-top:10px; overflow:hidden; }
+      .prog>i{ display:block; height:100%; width:100%; background:var(--gold);
         transform:scaleX(.42); transform-origin:left; transition:transform .9s linear; }
-      .media .ctrl{ display:flex; gap:6px; }
-      .media .ctrl button{ width:32px; height:32px; border:none; border-radius:9px; cursor:pointer;
-        background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center;
-        transition:background .15s, transform .1s; }
-      .media .ctrl button:hover{ background:#d9e6fe; }
-      .media .ctrl button:active{ transform:scale(.92); }
-      .media .ctrl button svg{ width:15px; height:15px; }
-      .media .ctrl .play{ background:var(--accent); color:#fff; }
-      .media .ctrl .play:hover{ background:#1f57cf; }
+      .ctrl{ display:flex; gap:10px; color:var(--ink); }
+      .ctrl button{ width:26px; height:26px; border:none; background:none; padding:0; cursor:pointer;
+        color:inherit; display:flex; align-items:center; justify-content:center; transition:color .15s, transform .1s; }
+      .ctrl button:hover{ color:var(--gold); }
+      .ctrl button:active{ transform:scale(.9); }
+      .ctrl button svg{ width:16px; height:16px; }
+      .ctrl .play{ width:34px; height:34px; border:1px solid var(--line-ink); }
+      .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
 
-      .climate{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; }
-      .climate .z{ text-align:center; flex:1; }
-      .climate .z b{ font-size:21px; font-weight:600; color:var(--ink); }
-      .climate .z span{ display:block; color:var(--dim); font-size:10.5px; letter-spacing:.4px; margin-top:3px; }
-      .climate .mid{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--accent);
-        padding:0 14px; border-left:1px solid var(--line-2); border-right:1px solid var(--line-2); }
-      .climate .mid svg{ width:20px; height:20px; }
-      .climate .mid span{ font-size:10px; font-weight:600; letter-spacing:1px; color:var(--dim); }
+      .climate-row{ display:flex; align-items:center; justify-content:space-between; }
+      .zone{ text-align:center; flex:1; }
+      .zone b{ font-size:22px; font-weight:700; color:var(--ink); }
+      .zone span{ display:block; color:var(--dim); font-size:9.5px; letter-spacing:.2em; margin-top:4px; text-transform:uppercase; }
+      .mid{ display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--gold);
+        padding:0 18px; border-left:1px solid var(--line); border-right:1px solid var(--line); }
+      .mid svg{ width:20px; height:20px; }
+      .mid span{ font-size:9px; font-weight:700; letter-spacing:.2em; color:var(--dim); }
 
-      .dock{ display:flex; justify-content:space-between; gap:7px; }
-      .dock .app{ flex:1; height:54px; border-radius:14px; background:var(--card); border:1px solid var(--line-2);
-        display:flex; align-items:center; justify-content:center; color:#93a2b9; cursor:pointer;
-        transition:transform .15s ease, background .15s, color .15s, box-shadow .15s; }
-      .dock .app:hover{ transform:translateY(-2px); background:var(--card-2); color:var(--accent); }
-      .dock .app svg{ width:22px; height:22px; }
-      .dock .app.active{ background:var(--accent); color:#fff; border-color:transparent;
-        box-shadow:0 8px 18px rgba(37,99,235,.30); }
-      .dock .app.active:hover{ transform:translateY(-2px); background:#1f57cf; color:#fff; }
+      .dock{ display:flex; margin-top:auto; border-top:1px solid var(--line-ink); }
+      .dock .app{ flex:1; padding:17px 0; display:flex; align-items:center; justify-content:center;
+        color:var(--dim); cursor:pointer; border-right:1px solid var(--line);
+        transition:color .15s, box-shadow .15s; }
+      .dock .app:last-child{ border-right:none; }
+      .dock .app svg{ width:21px; height:21px; }
+      .dock .app:hover{ color:var(--ink); }
+      .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
       /* ---- steering wheel silhouette (driver POV) ---- */
-      .wheel{ position:absolute; left:50%; bottom:-196px; transform:translateX(-50%);
-        width:560px; height:560px; z-index:1; opacity:.5; pointer-events:none; color:#9fb0c9; }
+      .wheel{ position:absolute; left:50%; bottom:-200px; transform:translateX(-50%);
+        width:560px; height:560px; z-index:1; opacity:.4; pointer-events:none; color:#b6ad99; }
 
-      .hint{ position:absolute; left:0; right:0; bottom:15px; text-align:center; z-index:4;
-        color:var(--dim); font-size:12px; letter-spacing:.3px; }
-      .hint b{ color:var(--accent); }
+      .hint{ position:absolute; left:0; right:0; bottom:16px; text-align:center; z-index:4;
+        color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
+      .hint b{ color:var(--gold); }
 
-      @keyframes eq{ 0%,100%{ transform:scaleY(.35); } 50%{ transform:scaleY(1); } }
-      @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.45; } }
-      @media (prefers-reduced-motion:reduce){ .media .eq i{ animation:none; } .live{ animation:none; } }
+      @keyframes eq{ 0%,100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
+      @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
+      @media (prefers-reduced-motion:reduce){ .eq i{ animation:none; } .live{ animation:none; } }
 
       @media (max-width:980px){
-        .deck{ flex-direction:column; gap:20px; padding:20px 0 72px; }
+        .deck{ flex-direction:column; gap:44px; padding:40px 0 72px; }
         .cluster-pod{ flex:none; width:100%; align-self:stretch; }
-        .podlabel{ position:static; bottom:auto; margin:12px 6px 0; }
+        .podlabel{ position:static; bottom:auto; margin:14px 0 0; }
         .console{ flex:none; width:100%; max-width:520px; }
-        .headunit{ height:auto; justify-content:flex-start; }
-        .wheel{ width:420px; bottom:-236px; }
+        .headunit{ height:auto; }
+        .wheel{ width:420px; bottom:-240px; }
       }
       @media (max-width:600px){
-        .cockpit{ padding:15px 15px 0; }
+        .cockpit{ padding:0 18px; }
         .byline{ display:none; }
         .wheel{ display:none; }
       }
@@ -156,14 +153,13 @@
       <header class="topbar">
         <div class="brand">
           <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="20" cy="20" r="17" stroke="#2563eb" stroke-width="2.4"/>
-            <path d="M20 20L28 13" stroke="#2563eb" stroke-width="2.8" stroke-linecap="round"/>
-            <circle cx="20" cy="20" r="3.4" fill="#2563eb"/>
-            <path d="M20 6.5v3M33.5 20h-3M20 33.5v-3M6.5 20h3" stroke="#9fb6e8" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="17" stroke="#121110" stroke-width="2"/>
+            <path d="M20 20L28 13" stroke="#b0894e" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="3" fill="#121110"/>
           </svg>
-          <span>AUTOMOTIVE <b>HMI</b> CLUSTER</span>
+          <span>Automotive <b>HMI</b> Cluster</span>
         </div>
-        <div class="byline">Real-time, data-driven cockpit · Yuhan Wu</div>
+        <div class="byline">Real-time data-driven cockpit — Yuhan Wu</div>
       </header>
 
       <div class="deck">
@@ -173,96 +169,104 @@
             <div class="screen">
               <canvas id="unity-canvas" tabindex="-1"></canvas>
               <div id="loading">
-                <div class="lt">HMI&nbsp;<b>CLUSTER</b></div>
+                <div class="lt">HMI&nbsp;<b>Cluster</b></div>
                 <div id="bar"><i></i></div>
                 <div id="pct">LOADING 0%</div>
               </div>
             </div>
           </div>
-          <div class="podlabel"><span class="live"></span>Instrument cluster · live</div>
+          <div class="podlabel"><span class="live"></span>Instrument cluster — live</div>
         </div>
 
         <!-- center console: car head-unit / infotainment -->
         <aside class="console">
           <div class="headunit">
-            <div class="hu-status">
+            <div class="sec status">
               <span class="clock num" id="hu-clock">9:41</span>
               <span class="right">
-                <svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="15" width="3" height="5" rx="1"/><rect x="8" y="11" width="3" height="9" rx="1"/><rect x="14" y="7" width="3" height="13" rx="1"/><rect x="20" y="3" width="3" height="17" rx="1" opacity=".35"/></svg>
+                <svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="15" width="3" height="5"/><rect x="8" y="11" width="3" height="9"/><rect x="14" y="7" width="3" height="13"/><rect x="20" y="3" width="3" height="17" opacity=".35"/></svg>
                 <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M8 8l8 8-4 4V4l4 4-8 8"/></svg>
-                <span class="wx" id="hu-weather">Connected · 22°C</span>
+                <span class="wx" id="hu-weather">Connected · 22°</span>
               </span>
             </div>
 
-            <div class="card nav">
-              <svg class="map" viewBox="0 0 360 138" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <rect width="360" height="138" fill="#e9f0f9"/>
-                <rect x="30" y="16" width="46" height="30" rx="4" fill="#dde7f3"/>
-                <rect x="250" y="70" width="60" height="40" rx="4" fill="#dde7f3"/>
-                <rect x="150" y="96" width="50" height="34" rx="4" fill="#dde7f3"/>
-                <path d="M-20 100 L135 54 L225 86 L390 34" stroke="#d0dcec" stroke-width="15" fill="none" stroke-linecap="round"/>
-                <path d="M64 -10 L112 72 L90 156" stroke="#d0dcec" stroke-width="10" fill="none"/>
-                <path d="M275 -10 L237 64 L292 156" stroke="#d0dcec" stroke-width="10" fill="none"/>
-                <path d="M-20 100 L135 54 L225 86" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
-                <path d="M-20 100 L135 54 L225 86" stroke="#2563eb" stroke-width="6" fill="none" stroke-linecap="round"/>
-                <circle cx="135" cy="54" r="7.5" fill="#2563eb" stroke="#ffffff" stroke-width="3"/>
-              </svg>
+            <div class="sec nav">
+              <div class="sechead"><span class="label">Next turn</span></div>
+              <div class="map-wrap">
+                <svg class="map" viewBox="0 0 360 118" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="360" height="118" fill="#efe9dd"/>
+                  <rect x="30" y="12" width="46" height="26" fill="#e2dbcb"/>
+                  <rect x="252" y="60" width="60" height="36" fill="#e2dbcb"/>
+                  <rect x="150" y="82" width="50" height="30" fill="#e2dbcb"/>
+                  <path d="M-20 86 L135 46 L225 74 L390 28" stroke="#d8d0bd" stroke-width="14" fill="none" stroke-linecap="round"/>
+                  <path d="M64 -10 L112 62 L90 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M275 -10 L237 54 L292 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M-20 86 L135 46 L225 74" stroke="#b0894e" stroke-width="5" fill="none" stroke-linecap="round"/>
+                  <circle cx="135" cy="46" r="7" fill="#b0894e" stroke="#efe9dd" stroke-width="3"/>
+                </svg>
+              </div>
               <div class="navinfo">
                 <span class="arrow" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19V11a3 3 0 0 1 3-3h7"/><path d="M13 4l5 4-5 4"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#b0894e" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19V11a3 3 0 0 1 3-3h7"/><path d="M13 4l5 4-5 4"/></svg>
                 </span>
                 <span class="nroad">
                   <div class="road" id="nav-road">I-405 N</div>
                   <div class="eta" id="nav-eta">12 min · arrive 8:53</div>
                 </span>
-                <span class="dist"><b class="num" id="nav-dist">2.3</b><span>miles</span></span>
+                <span class="dist"><b class="num" id="nav-dist">2.3</b><span>Miles</span></span>
               </div>
             </div>
 
-            <div class="card media">
-              <div class="art" aria-hidden="true"><span class="eq"><i></i><i></i><i></i></span></div>
-              <div class="meta">
-                <div class="title">Midnight City</div>
-                <div class="artist">M83</div>
-                <div class="prog"><i id="media-prog"></i></div>
-              </div>
-              <div class="ctrl">
-                <button aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
-                <button class="play" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
-                <button aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
+            <div class="sec media">
+              <div class="sechead"><span class="label">Now playing</span></div>
+              <div class="media-row">
+                <div class="art" aria-hidden="true"><span class="eq"><i></i><i></i><i></i></span></div>
+                <div class="meta">
+                  <div class="mtitle">Midnight City</div>
+                  <div class="martist">M83</div>
+                  <div class="prog"><i id="media-prog"></i></div>
+                </div>
+                <div class="ctrl">
+                  <button aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
+                  <button class="play" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+                  <button aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
+                </div>
               </div>
             </div>
 
-            <div class="card climate">
-              <div class="z"><b class="num">21°</b><span>Driver</span></div>
-              <div class="mid">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 12c0-3 4-3 4-6a3 3 0 0 0-5-2M12 12c3 0 3 4 6 4a3 3 0 0 0 2-5M12 12c0 3-4 3-4 6a3 3 0 0 0 5 2M12 12c-3 0-3-4-6-4a3 3 0 0 0-2 5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
-                <span>Auto</span>
+            <div class="sec climate">
+              <div class="sechead"><span class="label">Climate</span></div>
+              <div class="climate-row">
+                <div class="zone"><b class="num">21°</b><span>Driver</span></div>
+                <div class="mid">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 12c0-3 4-3 4-6a3 3 0 0 0-5-2M12 12c3 0 3 4 6 4a3 3 0 0 0 2-5M12 12c0 3-4 3-4 6a3 3 0 0 0 5 2M12 12c-3 0-3-4-6-4a3 3 0 0 0-2 5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+                  <span>Auto</span>
+                </div>
+                <div class="zone"><b class="num">22°</b><span>Passenger</span></div>
               </div>
-              <div class="z"><b class="num">22°</b><span>Passenger</span></div>
             </div>
 
             <div class="dock">
-              <div class="app active" aria-label="Navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.5 16L12 15l-3.5 3z" fill="#fff" stroke="#fff"/></svg></div>
-              <div class="app" aria-label="Media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="18" r="2.4"/><circle cx="18" cy="16" r="2.4"/><path d="M9.4 18V6l11-2v12"/></svg></div>
-              <div class="app" aria-label="Phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l3 1 1 4-2 2a12 12 0 0 0 5 5l2-2 4 1 1 3a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z"/></svg></div>
-              <div class="app" aria-label="Climate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18"/></svg></div>
-              <div class="app" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.3"/><circle cx="8" cy="17" r="2.3"/></svg></div>
+              <div class="app active" aria-label="Navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2l3.5 16L12 15l-3.5 3z" fill="currentColor"/></svg></div>
+              <div class="app" aria-label="Media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="18" r="2.4"/><circle cx="18" cy="16" r="2.4"/><path d="M9.4 18V6l11-2v12"/></svg></div>
+              <div class="app" aria-label="Phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l3 1 1 4-2 2a12 12 0 0 0 5 5l2-2 4 1 1 3a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z"/></svg></div>
+              <div class="app" aria-label="Climate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18"/></svg></div>
+              <div class="app" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.3"/><circle cx="8" cy="17" r="2.3"/></svg></div>
             </div>
           </div>
         </aside>
       </div>
 
       <svg class="wheel" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="100" cy="100" r="92" stroke="currentColor" stroke-width="10"/>
-        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="2" opacity=".5"/>
-        <circle cx="100" cy="100" r="18" fill="currentColor"/>
-        <path d="M100 118 V182" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
-        <path d="M85 106 L30 148" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
-        <path d="M115 106 L170 148" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="92" stroke="currentColor" stroke-width="9"/>
+        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="1.5" opacity=".5"/>
+        <circle cx="100" cy="100" r="17" fill="currentColor"/>
+        <path d="M100 117 V182" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
+        <path d="M85 106 L30 148" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
+        <path d="M115 106 L170 148" stroke="currentColor" stroke-width="11" stroke-linecap="round"/>
       </svg>
 
-      <div class="hint">Press <b>`</b> to toggle controls · drag or click the cluster to interact</div>
+      <div class="hint">Press <b>`</b> to toggle controls — drag or click the cluster to interact</div>
     </div>
 
     <script>
@@ -296,12 +300,12 @@
         Straight: '<path d="M12 20V6"/><path d="M6 11l6-6 6 6"/>'
       };
       var WEATHER_LABEL = { Clear:"Clear", Rain:"Rain", Thunderstorm:"Storm", Sandstorm:"Sandstorm" };
-      function setArrow(turn){ var a=document.querySelector(".nav .arrow svg"); if(a) a.innerHTML = TURN_SVG[turn] || TURN_SVG.Straight; }
+      function setArrow(turn){ var a=document.querySelector(".arrow svg"); if(a) a.innerHTML = TURN_SVG[turn] || TURN_SVG.Straight; }
       function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent = t; }
       window.HmiOnState = function (jsonStr) {
         var d; try { d = JSON.parse(jsonStr); } catch (e) { return; }
         linked = true;
-        setText("hu-weather", (WEATHER_LABEL[d.weather] || "Clear") + " · 22°C");
+        setText("hu-weather", (WEATHER_LABEL[d.weather] || "Clear") + " · 22°");
         if (d.navTurn === "None") {
           setArrow("Straight");
           setText("nav-road", "No active route");
