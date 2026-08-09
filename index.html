@@ -99,11 +99,12 @@
       .dock .app:hover{ color:var(--ink); }
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
-      /* ---- LABEL section : record carousel ---- */
-      .labelsec{ border-top:1px solid var(--line-ink); padding:46px 0 64px; }
+      /* ---- LABEL section : record carousel (real tracks via SoundCloud) ---- */
+      .labelsec{ position:relative; border-top:1px solid var(--line-ink); padding:46px 0 56px; }
       .labelhead{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
-      .lh-now{ text-align:center; min-width:0; }
-      .lh-now .mtitle{ font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.02em; }
+      .lh-now{ text-align:center; min-width:0; flex:1; }
+      .lh-now .mtitle{ font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.02em;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .lh-now .martist{ color:var(--dim); font-size:12px; margin-top:2px; letter-spacing:.04em; }
       .lh-right{ display:flex; align-items:center; gap:16px; }
       .ctrl{ display:flex; gap:12px; color:var(--ink); }
@@ -117,7 +118,7 @@
 
       .carousel{ display:flex; gap:34px; overflow-x:auto; scrollbar-width:none; cursor:grab;
         user-select:none; scroll-snap-type:x mandatory; scroll-behavior:smooth;
-        -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:26px calc(50% - 105px); }
+        -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:26px calc(50% - 105px); min-height:200px; }
       .carousel.dragging{ cursor:grabbing; scroll-behavior:auto; }
       .carousel::-webkit-scrollbar{ display:none; }
       .card{ flex:0 0 auto; width:210px; scroll-snap-align:center; background:none; border:none; padding:0;
@@ -127,9 +128,14 @@
       .card.revealed{ opacity:1; transform:none; }
       .disc-wrap{ position:relative; width:200px; height:200px; transition:transform .25s; }
       .card.active .disc-wrap{ transform:scale(1.06); }
-      .card .vinyl{ position:absolute; inset:0; }
-      .card .vinyl svg{ width:100%; height:100%; display:block; }
-      .card.now .vinyl{ animation:spin 3.6s linear infinite; }
+      .disc{ position:absolute; inset:0; }
+      .card.now .disc{ animation:spin 3.6s linear infinite; }
+      .vinyl{ position:absolute; inset:0; }
+      .vinyl svg{ width:100%; height:100%; display:block; }
+      .art{ position:absolute; left:31%; top:31%; width:38%; height:38%; border-radius:50%;
+        object-fit:cover; pointer-events:none; }
+      .hole{ position:absolute; left:calc(50% - 3px); top:calc(50% - 3px); width:6px; height:6px;
+        border-radius:50%; background:#0e0e0d; }
       .cover{ position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
         background:rgba(12,11,10,0); opacity:0; transition:opacity .2s ease, background .2s ease; }
       .card:hover .cover{ opacity:1; background:rgba(12,11,10,.5); }
@@ -141,22 +147,24 @@
       .cprog{ width:200px; height:2px; background:var(--line); overflow:hidden; opacity:0; transition:opacity .2s; }
       .card:hover .cprog, .card.now .cprog{ opacity:1; }
       .cprog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
-      .card.now .cprog>i{ animation:prog 26s linear infinite; }
       .card .ct{ font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink);
         max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .card .ca{ font-size:11px; color:var(--dim); letter-spacing:.04em; }
+      .card .ca{ font-size:11px; color:var(--dim); letter-spacing:.04em; max-width:200px;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .card.active .ct{ color:var(--gold); }
+
+      #scframe{ position:absolute; left:-9999px; width:320px; height:80px; border:0; }
+      .attrib{ text-align:center; margin-top:14px; color:var(--dim);
+        font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; }
 
       .footer{ border-top:1px solid var(--line); padding:18px 0 26px; text-align:center;
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .footer b{ color:var(--gold); }
 
       @keyframes spin{ to{ transform:rotate(360deg); } }
-      @keyframes prog{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
       @media (prefers-reduced-motion:reduce){
-        .card.now .vinyl{ animation:none; }
-        .card.now .cprog>i{ animation:none; transform:scaleX(.5); }
+        .card.now .disc{ animation:none; }
         .card{ transition:none; }
         .live{ animation:none; }
       }
@@ -172,7 +180,7 @@
         .cockpit{ padding:0 18px; }
         .byline{ display:none; }
         .carousel{ gap:24px; padding:20px calc(50% - 80px); }
-        .card{ width:160px; } .card .vinyl{ width:150px; height:150px; }
+        .card{ width:160px; } .disc-wrap{ width:150px; height:150px; } .cprog{ width:150px; }
       }
     </style>
   </head>
@@ -191,7 +199,6 @@
       </header>
 
       <div class="deck">
-        <!-- instrument cluster: the live Unity screen -->
         <div class="cluster-pod">
           <div class="bezel">
             <div class="screen">
@@ -206,7 +213,6 @@
           <div class="podlabel"><span class="live"></span>Instrument cluster — live</div>
         </div>
 
-        <!-- center console: car head-unit / infotainment -->
         <aside class="console">
           <div class="headunit">
             <div class="sec status">
@@ -268,13 +274,12 @@
         </aside>
       </div>
 
-      <!-- LABEL : slide the records, click to play -->
       <section class="labelsec" id="label">
         <div class="labelhead">
           <span class="label">Label — records</span>
           <div class="lh-now">
-            <div class="mtitle" id="np-title">Amber Tide</div>
-            <div class="martist" id="np-artist">Solenne</div>
+            <div class="mtitle" id="np-title">Loading label…</div>
+            <div class="martist" id="np-artist">SoundCloud</div>
           </div>
           <div class="lh-right">
             <span class="label" id="pl-state">Paused</span>
@@ -286,23 +291,27 @@
           </div>
         </div>
         <div class="carousel" id="carousel"></div>
+        <iframe id="scframe" allow="autoplay" title="SoundCloud player"
+          src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fnoartmusic&color=%23b0894e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_teaser=false&visual=false"></iframe>
+        <div class="attrib">Full tracks streamed via SoundCloud — No Art</div>
       </section>
 
-      <div class="footer">Press <b>`</b> to toggle cluster controls — flick the records, click to play</div>
+      <div class="footer">Press <b>`</b> to toggle cluster controls — click a record to play</div>
     </div>
 
+    <script src="https://w.soundcloud.com/player/api.js"></script>
     <script>
       var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
       var fmt = function (d) { return d.getHours() + ":" + pad(d.getMinutes()); };
       function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent = t; }
+      function esc(t){ return (t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
       /* live clock */
       function tick(){ setText("hu-clock", fmt(new Date())); }
       tick(); setInterval(tick,10000);
 
       /* live navigation (mock until the Unity cluster links up and drives it) */
-      var linked = false;
-      var dist = 2.3, speed = 34;
+      var linked = false, dist = 2.3, speed = 34;
       function navTick(){
         if (linked) return;
         dist = Math.round((dist - 0.1) * 10) / 10;
@@ -313,7 +322,7 @@
       }
       navTick(); setInterval(navTick, 2600);
 
-      /* ---- Unity scene linkage: head unit mirrors the live cluster scenario ---- */
+      /* ---- Unity scene linkage ---- */
       var TURN_SVG = {
         Left:     '<path d="M17 19V11a3 3 0 0 0-3-3H7"/><path d="M11 4L6 8l5 4"/>',
         Right:    '<path d="M7 19V11a3 3 0 0 1 3-3h7"/><path d="M13 4l5 4-5 4"/>',
@@ -340,17 +349,11 @@
         setText("nav-eta", mins + " min · arrive " + fmt(new Date(Date.now() + mins * 60000)));
       };
 
-      /* ---- record label: flick to browse, click to play generated music (no external files) ---- */
-      var RECORDS = [
-        { t:"Amber Tide",  a:"Solenne", col:"#b0894e", root:196.00, wave:"sawtooth", bpm:108, pat:[0,3,5,7,5,3,7,10],  bass:[0,0,-2,3] },
-        { t:"Night Ferry", a:"Kavo",    col:"#8f6d38", root:174.61, wave:"triangle", bpm:120, pat:[0,5,7,10,7,5],       bass:[0,3,0,-2] },
-        { t:"Dune Radio",  a:"Halo",    col:"#c9a15a", root:146.83, wave:"square",   bpm:126, pat:[0,3,7,3,10,7],       bass:[0,0,3,5] },
-        { t:"Slow Gold",   a:"Maree",   col:"#d8cbb0", root:164.81, wave:"sine",     bpm:96,  pat:[0,7,5,3,5,7],         bass:[0,-2,0,3] },
-        { t:"Copper Rain", a:"Ilo",     col:"#a06a3a", root:155.56, wave:"triangle", bpm:112, pat:[0,3,7,10,12,10,7,3], bass:[0,0,-2,-2] },
-        { t:"Late Signal", a:"Nueva",   col:"#cdb98a", root:207.65, wave:"sawtooth", bpm:122, pat:[0,5,3,7,10,7],       bass:[0,3,5,3] }
-      ];
-      var SCALE = [0,3,5,7,10,12,15,17];
-      var AC=null, master=null, delay=null, playing=false, cur=0, stepN=0, nextT=0, schedTimer=null;
+      /* ---- record label : real full tracks via the SoundCloud Widget API ---- */
+      var GOLD = ["#b0894e","#8f6d38","#c9a15a","#d8cbb0","#a06a3a","#cdb98a"];
+      var PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      var PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
+      var RSOUNDS=[], playing=false, cur=0, widget=null;
 
       function vinyl(col){
         return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
@@ -358,73 +361,23 @@
           +'<circle cx="50" cy="50" r="42" fill="none" stroke="#26251f" stroke-width="1"/>'
           +'<circle cx="50" cy="50" r="35" fill="none" stroke="#26251f" stroke-width="1"/>'
           +'<circle cx="50" cy="50" r="28" fill="none" stroke="#26251f" stroke-width="1"/>'
-          +'<circle cx="50" cy="50" r="19" fill="'+col+'"/>'
-          +'<circle cx="50" cy="50" r="3" fill="#0e0e0d"/></svg>';
+          +'<circle cx="50" cy="50" r="19" fill="'+col+'"/></svg>';
       }
-      function ensureAudio(){
-        if (AC) return;
-        AC = new (window.AudioContext||window.webkitAudioContext)();
-        master = AC.createGain(); master.gain.value = 0.0001; master.connect(AC.destination);
-        delay = AC.createDelay(); delay.delayTime.value = 0.30;
-        var fb = AC.createGain(); fb.gain.value = 0.22;
-        delay.connect(fb); fb.connect(delay); delay.connect(master);
-      }
-      function noteFreq(root, semi){ return root * Math.pow(2, semi/12); }
-      function voice(time, freq, dur, wave, gv){
-        var o=AC.createOscillator(), g=AC.createGain(), f=AC.createBiquadFilter();
-        o.type=wave; o.frequency.value=freq; f.type="lowpass"; f.frequency.value=1600;
-        g.gain.setValueAtTime(0.0001, time);
-        g.gain.linearRampToValueAtTime(gv, time+0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
-        o.connect(f); f.connect(g); g.connect(master); g.connect(delay);
-        o.start(time); o.stop(time+dur+0.05);
-      }
-      function scheduler(){
-        var r=RECORDS[cur], spb=60/r.bpm/2;
-        while (nextT < AC.currentTime + 0.12){
-          var lead = r.wave==="square" ? 0.07 : 0.12;
-          voice(nextT, noteFreq(r.root, SCALE[r.pat[stepN % r.pat.length]]+12), spb*0.9, r.wave, lead);
-          if (stepN % 2 === 0)
-            voice(nextT, noteFreq(r.root/2, r.bass[(stepN/2) % r.bass.length]), spb*1.7, "triangle", 0.20);
-          stepN++; nextT += spb;
-        }
-      }
-      var PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-      var PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
       function setPlayIcon(p){
         var b=document.getElementById("playbtn"); if(!b) return;
-        b.innerHTML = p ? PAUSE_SVG : PLAY_SVG;
-        b.setAttribute("aria-label", p ? "Pause" : "Play");
+        b.innerHTML = p ? PAUSE_SVG : PLAY_SVG; b.setAttribute("aria-label", p ? "Pause" : "Play");
       }
       function setCardIcons(){
         var cards=document.querySelectorAll("#carousel .card");
         for(var i=0;i<cards.length;i++){
           var isNow = playing && i===cur;
           cards[i].classList.toggle("now", isNow);
-          var pb=cards[i].querySelector(".pbtn");
-          if(pb) pb.innerHTML = isNow ? PAUSE_SVG : PLAY_SVG;
+          var pb=cards[i].querySelector(".pbtn"); if(pb) pb.innerHTML = isNow ? PAUSE_SVG : PLAY_SVG;
         }
       }
       function reflect(){
-        var pl=document.getElementById("label"); if(pl) pl.classList.toggle("playing", playing);
         setText("pl-state", playing ? "Playing" : "Paused");
-        setPlayIcon(playing);
-        setCardIcons();
-      }
-      function startPlay(){
-        ensureAudio(); if(AC.state==="suspended") AC.resume();
-        playing=true; nextT=AC.currentTime+0.06;
-        master.gain.cancelScheduledValues(AC.currentTime);
-        master.gain.setValueAtTime(Math.max(master.gain.value,0.0001), AC.currentTime);
-        master.gain.linearRampToValueAtTime(0.42, AC.currentTime+0.4);
-        clearInterval(schedTimer); schedTimer=setInterval(scheduler,25);
-        reflect();
-      }
-      function stopPlay(){
-        playing=false;
-        if(master){ master.gain.cancelScheduledValues(AC.currentTime); master.gain.linearRampToValueAtTime(0.0001, AC.currentTime+0.25); }
-        clearInterval(schedTimer);
-        reflect();
+        setPlayIcon(playing); setCardIcons();
       }
       function centerCard(i, smooth){
         var el=document.getElementById("carousel"); if(!el) return;
@@ -432,39 +385,50 @@
         el.scrollTo({ left: c.offsetLeft - el.clientWidth/2 + c.offsetWidth/2, behavior: smooth?"smooth":"auto" });
       }
       function updateMeta(center){
-        var r=RECORDS[cur];
-        setText("np-title", r.t); setText("np-artist", r.a);
+        var s=RSOUNDS[cur];
+        if(s){ setText("np-title", s.title); setText("np-artist", s.artist); }
         var cards=document.querySelectorAll("#carousel .card");
         for(var i=0;i<cards.length;i++) cards[i].classList.toggle("active", i===cur);
         if(center) centerCard(cur, true);
       }
-      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(true); if(!playing) startPlay(); else reflect(); }
+      function setActiveProgress(rel){
+        var card=document.querySelectorAll("#carousel .card")[cur]; if(!card) return;
+        var bar=card.querySelector(".cprog>i"); if(bar) bar.style.transform="scaleX("+Math.max(0,Math.min(1,rel||0)).toFixed(3)+")";
+      }
       function buildCarousel(){
         var el=document.getElementById("carousel"); if(!el) return;
         var html="";
-        for(var i=0;i<RECORDS.length;i++){
-          var r=RECORDS[i];
+        for(var i=0;i<RSOUNDS.length;i++){
+          var s=RSOUNDS[i], col=GOLD[i%GOLD.length];
+          var art = s.art ? '<img class="art" src="'+esc(s.art)+'" alt="" draggable="false">' : '';
           html+='<button class="card" data-i="'+i+'">'
-              +'<span class="disc-wrap"><span class="vinyl">'+vinyl(r.col)+'</span>'
+              +'<span class="disc-wrap"><span class="disc"><span class="vinyl">'+vinyl(col)+'</span>'+art+'<span class="hole"></span></span>'
               +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span></span></span>'
               +'<span class="cprog"><i></i></span>'
-              +'<span class="ct">'+r.t+'</span><span class="ca">'+r.a+'</span></button>';
+              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(s.artist)+'</span></button>';
         }
         el.innerHTML=html;
         var cards=el.querySelectorAll(".card");
-        /* pop each record in, one by one (fade + rise) */
         for(var k=0;k<cards.length;k++)
-          (function(c,idx){ setTimeout(function(){ c.classList.add("revealed"); }, 160 + idx*130); })(cards[k], k);
+          (function(c,idx){ setTimeout(function(){ c.classList.add("revealed"); }, 140 + idx*110); })(cards[k], k);
       }
-      buildCarousel(); updateMeta(false); setPlayIcon(false);
-      window.addEventListener("load", function(){ centerCard(cur, false); });
+      function playIndex(i){
+        if(!widget) return;
+        cur=(i+RSOUNDS.length)%RSOUNDS.length;
+        updateMeta(true);
+        widget.skip(cur);   /* skip auto-plays; PLAY event confirms state */
+      }
+      function toggleIndex(i){
+        if(!widget) return;
+        if(playing && i===cur) widget.pause(); else playIndex(i);
+      }
 
+      /* transport + gestures */
       (function(){
-        var pb=document.getElementById("playbtn"); if(pb) pb.addEventListener("click", function(){ playing?stopPlay():startPlay(); });
-        var pv=document.getElementById("prev");    if(pv) pv.addEventListener("click", function(){ selectRecord(cur-1); });
-        var nx=document.getElementById("next");    if(nx) nx.addEventListener("click", function(){ selectRecord(cur+1); });
+        var pb=document.getElementById("playbtn"); if(pb) pb.addEventListener("click", function(){ if(widget) widget.toggle(); });
+        var pv=document.getElementById("prev");    if(pv) pv.addEventListener("click", function(){ if(widget) widget.prev(); });
+        var nx=document.getElementById("next");    if(nx) nx.addEventListener("click", function(){ if(widget) widget.next(); });
 
-        /* drag with inertia + snap (page-flip feel) */
         var el=document.getElementById("carousel"); if(!el) return;
         var down=false, sx=0, sl=0, lastX=0, lastT=0, vel=0, moved=false, raf=0;
         function stopRaf(){ if(raf){ cancelAnimationFrame(raf); raf=0; } }
@@ -473,45 +437,62 @@
           for(var i=0;i<cards.length;i++){ var cc=cards[i].offsetLeft+cards[i].offsetWidth/2, d=Math.abs(cc-c0); if(d<bd){bd=d;best=i;} }
           return best;
         }
-        function settle(){
-          el.style.scrollSnapType="x mandatory";
-          centerCard(nearest(), true);
-        }
+        function settle(){ el.style.scrollSnapType="x mandatory"; centerCard(nearest(), true); }
         el.addEventListener("pointerdown", function(e){
-          down=true; moved=false; stopRaf(); sx=e.clientX; sl=el.scrollLeft;
-          lastX=e.clientX; lastT=performance.now(); vel=0;
+          down=true; moved=false; stopRaf(); sx=e.clientX; sl=el.scrollLeft; lastX=e.clientX; lastT=performance.now(); vel=0;
         });
         el.addEventListener("pointermove", function(e){
           if(!down) return; var dx=e.clientX-sx;
-          if(!moved && Math.abs(dx)>6){            /* only start a drag past the threshold */
-            moved=true; el.style.scrollSnapType="none"; el.classList.add("dragging");
-            try{ el.setPointerCapture(e.pointerId); }catch(x){}
-          }
-          if(moved){
-            el.scrollLeft=sl-dx;
-            var now=performance.now(), dt=now-lastT||16; vel=(e.clientX-lastX)/dt; lastX=e.clientX; lastT=now;
-          }
+          if(!moved && Math.abs(dx)>6){ moved=true; el.style.scrollSnapType="none"; el.classList.add("dragging"); try{ el.setPointerCapture(e.pointerId); }catch(x){} }
+          if(moved){ el.scrollLeft=sl-dx; var now=performance.now(), dt=now-lastT||16; vel=(e.clientX-lastX)/dt; lastX=e.clientX; lastT=now; }
         });
         function release(){
           if(!down) return; down=false;
-          if(!moved){ el.classList.remove("dragging"); return; }  /* a plain click, let it through */
+          if(!moved){ el.classList.remove("dragging"); return; }
           el.classList.remove("dragging");
           var v=vel*16;
-          (function step(){
-            v*=0.93; el.scrollLeft-=v;
-            if(Math.abs(v)>0.6){ raf=requestAnimationFrame(step); } else { stopRaf(); settle(); }
-          })();
+          (function step(){ v*=0.93; el.scrollLeft-=v; if(Math.abs(v)>0.6){ raf=requestAnimationFrame(step); } else { stopRaf(); settle(); } })();
         }
         el.addEventListener("pointerup", release);
         el.addEventListener("pointercancel", release);
-        /* delegated click: play/pause the record that was clicked (suppressed right after a drag) */
         el.addEventListener("click", function(e){
           if(moved){ moved=false; return; }
-          var card = e.target.closest && e.target.closest(".card"); if(!card) return;
-          var i = +card.getAttribute("data-i");
-          if(playing && i===cur) stopPlay(); else selectRecord(i);
+          var card=e.target.closest && e.target.closest(".card"); if(!card) return;
+          toggleIndex(+card.getAttribute("data-i"));
         });
       })();
+
+      /* SoundCloud Widget wiring */
+      function initSC(){
+        var f=document.getElementById("scframe"); if(!f || !window.SC) return;
+        widget = SC.Widget(f);
+        widget.bind(SC.Widget.Events.READY, function(){
+          widget.getSounds(function(sounds){
+            RSOUNDS=[];
+            for(var i=0;i<sounds.length && RSOUNDS.length<8;i++){
+              var s=sounds[i]; if(!s || !s.title) continue;
+              var art=(s.artwork_url || (s.user && s.user.avatar_url) || "");
+              if(art) art=art.replace("-large","-t200x200");
+              RSOUNDS.push({ title:s.title, artist:(s.user && s.user.username) || "No Art", art:art });
+            }
+            if(RSOUNDS.length===0) RSOUNDS.push({ title:"No Art", artist:"SoundCloud", art:"" });
+            buildCarousel(); updateMeta(false); setPlayIcon(false);
+            centerCard(cur,false);
+          });
+        });
+        widget.bind(SC.Widget.Events.PLAY, function(){
+          playing=true;
+          widget.getCurrentSoundIndex(function(idx){
+            if(typeof idx==="number" && RSOUNDS.length){ cur=idx % RSOUNDS.length; updateMeta(true); }
+            reflect();
+          });
+        });
+        widget.bind(SC.Widget.Events.PAUSE, function(){ playing=false; reflect(); });
+        widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e){ setActiveProgress(e && e.relativePosition); });
+      }
+      if(window.SC){ initSC(); }
+      else { var _t=setInterval(function(){ if(window.SC){ clearInterval(_t); initSC(); } }, 150);
+             setTimeout(function(){ clearInterval(_t); }, 9000); }
 
       /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
@@ -525,9 +506,9 @@
         productName: "HMI adjust system",
         productVersion: "1.2.0",
       };
-      var s = document.createElement("script");
-      s.src = "Build/WebGL.loader.js";
-      s.onload = function () {
+      var sc = document.createElement("script");
+      sc.src = "Build/WebGL.loader.js";
+      sc.onload = function () {
         createUnityInstance(canvas, config, function (p) {
           document.querySelector("#bar > i").style.transform = "scaleX(" + p + ")";
           document.querySelector("#pct").textContent = "LOADING " + Math.round(p * 100) + "%";
@@ -537,7 +518,7 @@
           setTimeout(function () { l.style.display = "none"; }, 550);
         }).catch(function (msg) { alert(msg); });
       };
-      document.body.appendChild(s);
+      document.body.appendChild(sc);
     </script>
   </body>
 </html>
