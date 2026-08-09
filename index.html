@@ -100,7 +100,8 @@
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
       /* ---- LABEL section : record carousel (real tracks via SoundCloud) ---- */
-      .labelsec{ order:1; position:relative; padding:46px 0 56px; }
+      .labelsec{ order:1; position:relative; padding:30px 0 40px; min-height:calc(100vh - 72px);
+        display:flex; flex-direction:column; justify-content:center; }
       .labelhead{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
       .lh-now{ text-align:center; min-width:0; flex:1; }
       .lh-now .mtitle{ font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.02em;
