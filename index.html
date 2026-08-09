@@ -142,14 +142,21 @@
         object-fit:cover; pointer-events:none; }
       .hole{ position:absolute; left:calc(50% - 3px); top:calc(50% - 3px); width:6px; height:6px;
         border-radius:50%; background:#0e0e0d; }
-      .cover{ position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
-        background:rgba(12,11,10,0); opacity:0; transition:opacity .2s ease, background .2s ease; }
-      .card:hover .cover{ opacity:1; background:rgba(12,11,10,.5); }
-      .card.now .cover{ opacity:1; background:rgba(12,11,10,.34); }
+      .cover{ position:absolute; inset:0; border-radius:50%; display:flex; flex-direction:column; align-items:center;
+        justify-content:center; gap:16px; background:rgba(12,11,10,0); opacity:0; transition:opacity .2s ease, background .2s ease; }
+      .card:hover .cover{ opacity:1; background:rgba(12,11,10,.52); }
+      .card.now .cover{ opacity:1; background:rgba(12,11,10,.36); }
       .pbtn{ width:54px; height:54px; border-radius:50%; background:var(--gold); color:#0e0e0d;
         display:flex; align-items:center; justify-content:center; transform:scale(.6); transition:transform .2s ease; }
       .card:hover .pbtn, .card.now .pbtn{ transform:scale(1); }
       .pbtn svg{ width:22px; height:22px; }
+      .addpill{ border:none; background:var(--paper); color:var(--ink); font:inherit; font-size:10px; font-weight:700;
+        text-transform:uppercase; letter-spacing:.14em; padding:8px 15px; cursor:pointer;
+        transform:translateY(6px); opacity:0; transition:transform .2s ease, opacity .2s ease, background .15s, color .15s; }
+      .card:hover .addpill, .card.now .addpill{ transform:translateY(0); opacity:1; }
+      .addpill:hover{ background:var(--gold); color:#0e0e0d; }
+      .addpill.added{ background:var(--gold); color:#0e0e0d; }
+      .addpill.sold{ background:none; color:#fff; border:1px solid rgba(255,255,255,.55); cursor:default; text-decoration:line-through; }
       .cprog{ width:200px; height:2px; background:var(--line); overflow:hidden; opacity:0; transition:opacity .2s; }
       .card:hover .cprog, .card.now .cprog{ opacity:1; }
       .cprog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
@@ -273,8 +280,8 @@
       </header>
 
       <div class="marquee" aria-hidden="true"><div class="mtrack">
-        <span>New drop</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Worldwide shipping</span><b>✦</b><span>No Art records</span><b>✦</b><span>Vinyl only</span><b>✦</b>
-        <span>New drop</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Worldwide shipping</span><b>✦</b><span>No Art records</span><b>✦</b><span>Vinyl only</span><b>✦</b>
+        <span>Fuel your drive</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Soundtrack for the road</span><b>✦</b><span>Cockpit ready</span><b>✦</b><span>Vinyl only</span><b>✦</b><span>Worldwide shipping</span><b>✦</b>
+        <span>Fuel your drive</span><b>✦</b><span>Limited pressings</span><b>✦</b><span>Soundtrack for the road</span><b>✦</b><span>Cockpit ready</span><b>✦</b><span>Vinyl only</span><b>✦</b><span>Worldwide shipping</span><b>✦</b>
       </div></div>
 
       <div class="deck">
@@ -372,7 +379,7 @@
         <div class="carousel" id="carousel"></div>
         <iframe id="scframe" allow="autoplay" title="SoundCloud player"
           src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fnoartmusic&color=%23b0894e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_teaser=false&visual=false"></iframe>
-        <div class="attrib">Full tracks streamed via SoundCloud — No Art</div>
+        <div class="attrib">Soundtrack for the drive — full tracks streamed via SoundCloud</div>
       </section>
 
       <div class="footer">Press <b>`</b> to toggle cluster controls — click a record to play</div>
@@ -448,6 +455,7 @@
 
       /* ---- record label : real full tracks via the SoundCloud Widget API ---- */
       var GOLD = ["#b0894e","#8f6d38","#c9a15a","#d8cbb0","#a06a3a","#cdb98a"];
+      var CAR_TAGS = ["Night drive","Coast highway","City cruise","Open road","Sunset run","Autobahn","Canyon run","Midnight lane"];
       var PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
       var PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
       var RSOUNDS=[], playing=false, cur=0, widget=null;
@@ -483,7 +491,7 @@
       }
       function updateMeta(center){
         var s=RSOUNDS[cur];
-        if(s){ setText("np-title", s.title); setText("np-artist", s.artist); }
+        if(s){ setText("np-title", s.title); setText("np-artist", CAR_TAGS[cur % CAR_TAGS.length]); }
         var cards=document.querySelectorAll("#carousel .card");
         for(var i=0;i<cards.length;i++) cards[i].classList.toggle("active", i===cur);
         if(center) centerCard(cur, true);
@@ -500,17 +508,17 @@
           var art = s.art ? '<img class="art" src="'+esc(s.art)+'" alt="" draggable="false">' : '';
           var sold = (i===2), ltd = (i===0 || i===4);
           var price = "€" + (16 + (i%4)*2).toFixed(2);
+          var tag = CAR_TAGS[i % CAR_TAGS.length];
           var badge = sold ? '<span class="badge sold">Sold out</span>' : (ltd ? '<span class="badge">Ltd</span>' : '');
-          var buy = '<span class="buy"><span class="price">'+price+'</span>'
-                  + (sold ? '<button class="add sold" data-i="'+i+'">Sold out</button>'
-                          : '<button class="add" data-i="'+i+'">Add</button>') + '</span>';
+          var pill = sold ? '<button class="addpill sold" data-i="'+i+'">Sold out</button>'
+                          : '<button class="addpill" data-i="'+i+'">Add to bag</button>';
           html+='<div class="card" data-i="'+i+'" role="button" tabindex="0">'
               +'<span class="disc-wrap"><span class="disc"><span class="vinyl">'+vinyl(col)+'</span>'+art+'<span class="hole"></span></span>'
               +badge
-              +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span></span></span>'
+              +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span>'+pill+'</span></span>'
               +'<span class="cprog"><i></i></span>'
-              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(s.artist)+'</span>'
-              +buy+'</div>';
+              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(tag)+'</span>'
+              +'<span class="buy"><span class="price">'+price+'</span></span></div>';
         }
         el.innerHTML=html;
         var cards=el.querySelectorAll(".card");
@@ -542,7 +550,7 @@
         var c=document.getElementById("cartcnt"); if(c) c.textContent=bag.length;
         var cart=document.getElementById("cart"); if(cart){ cart.classList.remove("bump"); void cart.offsetWidth; cart.classList.add("bump"); }
         showToast("Added — "+s.title);
-        if(btn){ btn.classList.add("added"); btn.textContent="Added"; setTimeout(function(){ btn.classList.remove("added"); btn.textContent="Add"; }, 1200); }
+        if(btn){ btn.classList.add("added"); btn.textContent="Added ✓"; setTimeout(function(){ btn.classList.remove("added"); btn.textContent="Add to bag"; }, 1200); }
       }
       (function(){ var cart=document.getElementById("cart"); if(cart) cart.addEventListener("click", function(){
         showToast(bag.length ? ("Bag — "+bag.length+" item"+(bag.length>1?"s":"")+" · prototype") : "Your bag is empty");
@@ -582,7 +590,7 @@
         el.addEventListener("pointercancel", release);
         el.addEventListener("click", function(e){
           if(moved){ moved=false; return; }
-          var add=e.target.closest && e.target.closest(".add");
+          var add=e.target.closest && e.target.closest(".addpill");
           if(add){ if(!add.classList.contains("sold")) addToBag(+add.getAttribute("data-i"), add); return; }
           var card=e.target.closest && e.target.closest(".card"); if(!card) return;
           toggleIndex(+card.getAttribute("data-i"));
@@ -602,7 +610,7 @@
               if(art) art=art.replace("-large","-t200x200");
               RSOUNDS.push({ title:s.title, artist:(s.user && s.user.username) || "No Art", art:art });
             }
-            if(RSOUNDS.length===0) RSOUNDS.push({ title:"No Art", artist:"SoundCloud", art:"" });
+            if(RSOUNDS.length===0) RSOUNDS.push({ title:"Road Tape", artist:"", art:"" });
             buildCarousel(); updateMeta(false); setPlayIcon(false);
             centerCard(cur,false);
           });
