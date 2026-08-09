@@ -13,15 +13,15 @@
         --line:#e2ddd1; --line-ink:#121110; --screen:#0a0a0a;
       }
       *{ box-sizing:border-box; }
-      html,body{ margin:0; height:100%; color:var(--ink-2);
+      html,body{ margin:0; min-height:100%; color:var(--ink-2);
         font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
         -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-      body{ min-height:100vh; background:var(--paper); }
+      body{ background:var(--paper); }
       .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
       .label{ text-transform:uppercase; letter-spacing:.18em; font-size:10px; font-weight:700; color:var(--dim); }
 
       .cockpit{ position:relative; min-height:100vh; display:flex; flex-direction:column;
-        max-width:1500px; margin:0 auto; padding:0 44px; overflow:hidden; }
+        max-width:1500px; margin:0 auto; padding:0 44px; }
 
       .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:4;
         padding:26px 0 20px; border-bottom:1px solid var(--line-ink); }
@@ -31,8 +31,8 @@
       .brand .mark{ width:24px; height:24px; }
       .byline{ color:var(--dim); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; }
 
-      .deck{ position:relative; z-index:3; flex:1; display:flex; align-items:stretch;
-        justify-content:center; gap:36px; padding:48px 0 56px; }
+      .deck{ position:relative; z-index:3; display:flex; align-items:stretch;
+        justify-content:center; gap:36px; padding:46px 0 44px; }
 
       /* ---- instrument cluster (Unity) ---- */
       .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:840px; min-width:0; }
@@ -58,7 +58,7 @@
       .console{ flex:0 0 372px; max-width:372px; }
       .headunit{ background:var(--panel); border:1px solid var(--line-ink); height:100%;
         display:flex; flex-direction:column; }
-      .sec{ padding:16px 20px; border-top:1px solid var(--line); }
+      .sec{ padding:18px 20px; border-top:1px solid var(--line); }
       .sec:first-child{ border-top:none; }
       .sechead{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
 
@@ -68,7 +68,7 @@
       .ic{ width:15px; height:15px; color:var(--dim); display:block; }
       .wx{ color:var(--ink); font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
 
-      .map-wrap{ position:relative; height:100px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
+      .map-wrap{ position:relative; height:118px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
       .map{ position:absolute; inset:0; width:100%; height:100%; }
       .navinfo{ display:flex; align-items:center; gap:13px; }
       .arrow{ width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
@@ -82,42 +82,6 @@
       .dist b{ font-size:24px; font-weight:700; color:var(--gold); }
       .dist span{ display:block; color:var(--dim); font-size:9.5px; letter-spacing:.2em; margin-top:3px; text-transform:uppercase; }
 
-      /* ---- label / record player ---- */
-      .media-row{ display:flex; align-items:center; gap:14px; }
-      .disc{ width:58px; height:58px; flex:none; }
-      .disc svg{ width:100%; height:100%; display:block; }
-      .playing .disc{ animation:spin 3s linear infinite; }
-      .meta{ min-width:0; flex:1; }
-      .mtitle{ font-weight:700; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .martist{ color:var(--dim); font-size:11.5px; margin-top:2px; letter-spacing:.02em; }
-      .prog{ height:2px; background:var(--line); margin-top:10px; overflow:hidden; }
-      .prog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
-      .playing .prog>i{ animation:prog 26s linear infinite; }
-      .ctrl{ display:flex; gap:10px; color:var(--ink); }
-      .ctrl button{ width:26px; height:26px; border:none; background:none; padding:0; cursor:pointer;
-        color:inherit; display:flex; align-items:center; justify-content:center; transition:color .15s, transform .1s; }
-      .ctrl button:hover{ color:var(--gold); }
-      .ctrl button:active{ transform:scale(.9); }
-      .ctrl button svg{ width:16px; height:16px; }
-      .ctrl .play{ width:34px; height:34px; border:1px solid var(--line-ink); }
-      .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
-
-      .crate{ display:flex; gap:12px; margin-top:15px; overflow-x:auto; scrollbar-width:none;
-        cursor:grab; user-select:none; scroll-snap-type:x proximity; scroll-behavior:smooth;
-        -webkit-overflow-scrolling:touch; touch-action:pan-x; }
-      .crate.dragging{ cursor:grabbing; scroll-behavior:auto; }
-      .crate::-webkit-scrollbar{ display:none; }
-      .rec{ flex:0 0 auto; width:66px; background:none; border:none; padding:0; cursor:pointer; color:inherit;
-        display:flex; flex-direction:column; align-items:center; gap:6px; scroll-snap-align:center; }
-      .rec .mini{ width:54px; height:54px; display:block; transition:transform .15s; }
-      .rec .mini svg{ width:100%; height:100%; display:block; }
-      .rec:hover .mini{ transform:translateY(-3px); }
-      .rec .rt{ font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink);
-        max-width:66px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .rec .ra{ font-size:8px; color:var(--dim); letter-spacing:.04em; }
-      .rec.active .rt{ color:var(--gold); }
-      .rec.active .mini{ box-shadow:0 0 0 2px var(--gold); border-radius:50%; }
-
       .climate-row{ display:flex; align-items:center; justify-content:space-between; }
       .zone{ text-align:center; flex:1; }
       .zone b{ font-size:22px; font-weight:700; color:var(--ink); }
@@ -129,36 +93,76 @@
 
       .dock{ display:flex; margin-top:auto; border-top:1px solid var(--line-ink); }
       .dock .app{ flex:1; padding:17px 0; display:flex; align-items:center; justify-content:center;
-        color:var(--dim); cursor:pointer; border-right:1px solid var(--line);
-        transition:color .15s, box-shadow .15s; }
+        color:var(--dim); cursor:pointer; border-right:1px solid var(--line); transition:color .15s, box-shadow .15s; }
       .dock .app:last-child{ border-right:none; }
       .dock .app svg{ width:21px; height:21px; }
       .dock .app:hover{ color:var(--ink); }
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
-      .hint{ position:absolute; left:0; right:0; bottom:16px; text-align:center; z-index:4;
-        color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
-      .hint b{ color:var(--gold); }
+      /* ---- LABEL section : record carousel ---- */
+      .labelsec{ border-top:1px solid var(--line-ink); padding:30px 0 46px; }
+      .labelhead{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
+      .lh-now{ text-align:center; min-width:0; }
+      .lh-now .mtitle{ font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.02em; }
+      .lh-now .martist{ color:var(--dim); font-size:12px; margin-top:2px; letter-spacing:.04em; }
+      .lh-right{ display:flex; align-items:center; gap:16px; }
+      .ctrl{ display:flex; gap:12px; color:var(--ink); }
+      .ctrl button{ width:28px; height:28px; border:none; background:none; padding:0; cursor:pointer;
+        color:inherit; display:flex; align-items:center; justify-content:center; transition:color .15s, transform .1s; }
+      .ctrl button:hover{ color:var(--gold); }
+      .ctrl button:active{ transform:scale(.9); }
+      .ctrl button svg{ width:17px; height:17px; }
+      .ctrl .play{ width:38px; height:38px; border:1px solid var(--line-ink); }
+      .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
 
-      @keyframes spin{ to{ transform:rotate(360deg); } }
+      .lprog{ height:2px; background:var(--line); margin:18px 0 4px; overflow:hidden; }
+      .lprog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
+      #label.playing .lprog>i{ animation:prog 26s linear infinite; }
+
+      .carousel{ display:flex; gap:34px; overflow-x:auto; scrollbar-width:none; cursor:grab;
+        user-select:none; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+        -webkit-overflow-scrolling:touch; touch-action:pan-x; padding:22px calc(50% - 105px); }
+      .carousel.dragging{ cursor:grabbing; scroll-behavior:auto; }
+      .carousel::-webkit-scrollbar{ display:none; }
+      .card{ flex:0 0 auto; width:210px; scroll-snap-align:center; background:none; border:none; padding:0;
+        cursor:pointer; color:inherit; display:flex; flex-direction:column; align-items:center; gap:16px;
+        opacity:.5; transition:opacity .25s; }
+      .card.active{ opacity:1; }
+      .card .vinyl{ width:200px; height:200px; display:block; transition:transform .25s; }
+      .card .vinyl svg{ width:100%; height:100%; display:block; }
+      .card.active .vinyl{ transform:scale(1.06); }
+      .card.active .vinyl svg circle:first-child{ /* keep */ }
+      #label.playing .card.active .vinyl{ animation:spin 3.6s linear infinite; transform:scale(1.06); }
+      .card .ct{ font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink);
+        max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .card .ca{ font-size:11px; color:var(--dim); letter-spacing:.04em; }
+      .card.active .ct{ color:var(--gold); }
+
+      .footer{ border-top:1px solid var(--line); padding:18px 0 26px; text-align:center;
+        color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
+      .footer b{ color:var(--gold); }
+
+      @keyframes spin{ to{ transform:scale(1.06) rotate(360deg); } }
       @keyframes prog{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
       @media (prefers-reduced-motion:reduce){
-        .playing .disc{ animation:none; }
-        .playing .prog>i{ animation:none; transform:scaleX(.5); }
+        #label.playing .card.active .vinyl{ animation:none; }
+        #label.playing .lprog>i{ animation:none; transform:scaleX(.5); }
         .live{ animation:none; }
       }
 
       @media (max-width:980px){
-        .deck{ flex-direction:column; gap:44px; padding:40px 0 72px; }
+        .deck{ flex-direction:column; gap:44px; padding:40px 0 40px; }
         .cluster-pod{ flex:none; width:100%; align-self:stretch; }
         .podlabel{ position:static; bottom:auto; margin:14px 0 0; }
-        .console{ flex:none; width:100%; max-width:520px; }
+        .console{ flex:none; width:100%; max-width:520px; align-self:center; }
         .headunit{ height:auto; }
       }
       @media (max-width:600px){
         .cockpit{ padding:0 18px; }
         .byline{ display:none; }
+        .carousel{ gap:24px; padding:20px calc(50% - 80px); }
+        .card{ width:160px; } .card .vinyl{ width:150px; height:150px; }
       }
     </style>
   </head>
@@ -207,16 +211,16 @@
             <div class="sec nav">
               <div class="sechead"><span class="label">Next turn</span></div>
               <div class="map-wrap">
-                <svg class="map" viewBox="0 0 360 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="360" height="100" fill="#efe9dd"/>
-                  <rect x="30" y="8" width="46" height="24" fill="#e2dbcb"/>
-                  <rect x="252" y="52" width="60" height="32" fill="#e2dbcb"/>
-                  <rect x="150" y="70" width="50" height="28" fill="#e2dbcb"/>
-                  <path d="M-20 72 L135 38 L225 62 L390 22" stroke="#d8d0bd" stroke-width="13" fill="none" stroke-linecap="round"/>
-                  <path d="M64 -10 L112 52 L90 112" stroke="#d8d0bd" stroke-width="9" fill="none"/>
-                  <path d="M275 -10 L237 46 L292 112" stroke="#d8d0bd" stroke-width="9" fill="none"/>
-                  <path d="M-20 72 L135 38 L225 62" stroke="#b0894e" stroke-width="5" fill="none" stroke-linecap="round"/>
-                  <circle cx="135" cy="38" r="7" fill="#b0894e" stroke="#efe9dd" stroke-width="3"/>
+                <svg class="map" viewBox="0 0 360 118" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="360" height="118" fill="#efe9dd"/>
+                  <rect x="30" y="12" width="46" height="26" fill="#e2dbcb"/>
+                  <rect x="252" y="60" width="60" height="36" fill="#e2dbcb"/>
+                  <rect x="150" y="82" width="50" height="30" fill="#e2dbcb"/>
+                  <path d="M-20 86 L135 46 L225 74 L390 28" stroke="#d8d0bd" stroke-width="14" fill="none" stroke-linecap="round"/>
+                  <path d="M64 -10 L112 66 L90 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M275 -10 L237 58 L292 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M-20 86 L135 46 L225 74" stroke="#b0894e" stroke-width="5" fill="none" stroke-linecap="round"/>
+                  <circle cx="135" cy="46" r="7" fill="#b0894e" stroke="#efe9dd" stroke-width="3"/>
                 </svg>
               </div>
               <div class="navinfo">
@@ -229,24 +233,6 @@
                 </span>
                 <span class="dist"><b class="num" id="nav-dist">2.3</b><span>Miles</span></span>
               </div>
-            </div>
-
-            <div class="sec player" id="player">
-              <div class="sechead"><span class="label">Label — now playing</span><span class="label" id="pl-state">Paused</span></div>
-              <div class="media-row">
-                <div class="disc" id="disc" aria-hidden="true"></div>
-                <div class="meta">
-                  <div class="mtitle" id="np-title">Amber Tide</div>
-                  <div class="martist" id="np-artist">Solenne</div>
-                  <div class="prog"><i id="media-prog"></i></div>
-                </div>
-                <div class="ctrl">
-                  <button id="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
-                  <button class="play" id="playbtn" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
-                  <button id="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
-                </div>
-              </div>
-              <div class="crate" id="crate"></div>
             </div>
 
             <div class="sec climate">
@@ -272,7 +258,28 @@
         </aside>
       </div>
 
-      <div class="hint">Press <b>`</b> to toggle controls — swipe or click a record to play</div>
+      <!-- LABEL : slide the records, click to play -->
+      <section class="labelsec" id="label">
+        <div class="labelhead">
+          <span class="label">Label — records</span>
+          <div class="lh-now">
+            <div class="mtitle" id="np-title">Amber Tide</div>
+            <div class="martist" id="np-artist">Solenne</div>
+          </div>
+          <div class="lh-right">
+            <span class="label" id="pl-state">Paused</span>
+            <div class="ctrl">
+              <button id="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
+              <button class="play" id="playbtn" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+              <button id="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="lprog"><i id="media-prog"></i></div>
+        <div class="carousel" id="carousel"></div>
+      </section>
+
+      <div class="footer">Press <b>`</b> to toggle cluster controls — flick the records, click to play</div>
     </div>
 
     <script>
@@ -324,12 +331,14 @@
         setText("nav-eta", mins + " min · arrive " + fmt(new Date(Date.now() + mins * 60000)));
       };
 
-      /* ---- record label: click a record to play generated music (no external files, no copyright) ---- */
+      /* ---- record label: flick to browse, click to play generated music (no external files) ---- */
       var RECORDS = [
-        { t:"Amber Tide", a:"Solenne", col:"#b0894e", root:196.00, wave:"sawtooth", bpm:108, pat:[0,3,5,7,5,3,7,10], bass:[0,0,-2,3] },
-        { t:"Night Ferry", a:"Kavo",   col:"#8f6d38", root:174.61, wave:"triangle", bpm:120, pat:[0,5,7,10,7,5],     bass:[0,3,0,-2] },
-        { t:"Dune Radio",  a:"Halo",   col:"#c9a15a", root:146.83, wave:"square",   bpm:126, pat:[0,3,7,3,10,7],     bass:[0,0,3,5] },
-        { t:"Slow Gold",   a:"Maree",  col:"#d8cbb0", root:164.81, wave:"sine",     bpm:96,  pat:[0,7,5,3,5,7],       bass:[0,-2,0,3] }
+        { t:"Amber Tide",  a:"Solenne", col:"#b0894e", root:196.00, wave:"sawtooth", bpm:108, pat:[0,3,5,7,5,3,7,10],  bass:[0,0,-2,3] },
+        { t:"Night Ferry", a:"Kavo",    col:"#8f6d38", root:174.61, wave:"triangle", bpm:120, pat:[0,5,7,10,7,5],       bass:[0,3,0,-2] },
+        { t:"Dune Radio",  a:"Halo",    col:"#c9a15a", root:146.83, wave:"square",   bpm:126, pat:[0,3,7,3,10,7],       bass:[0,0,3,5] },
+        { t:"Slow Gold",   a:"Maree",   col:"#d8cbb0", root:164.81, wave:"sine",     bpm:96,  pat:[0,7,5,3,5,7],         bass:[0,-2,0,3] },
+        { t:"Copper Rain", a:"Ilo",     col:"#a06a3a", root:155.56, wave:"triangle", bpm:112, pat:[0,3,7,10,12,10,7,3], bass:[0,0,-2,-2] },
+        { t:"Late Signal", a:"Nueva",   col:"#cdb98a", root:207.65, wave:"sawtooth", bpm:122, pat:[0,5,3,7,10,7],       bass:[0,3,5,3] }
       ];
       var SCALE = [0,3,5,7,10,12,15,17];
       var AC=null, master=null, delay=null, playing=false, cur=0, stepN=0, nextT=0, schedTimer=null;
@@ -337,8 +346,9 @@
       function vinyl(col){
         return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
           +'<circle cx="50" cy="50" r="48" fill="#0e0e0d"/>'
-          +'<circle cx="50" cy="50" r="40" fill="none" stroke="#26251f" stroke-width="1"/>'
-          +'<circle cx="50" cy="50" r="31" fill="none" stroke="#26251f" stroke-width="1"/>'
+          +'<circle cx="50" cy="50" r="42" fill="none" stroke="#26251f" stroke-width="1"/>'
+          +'<circle cx="50" cy="50" r="35" fill="none" stroke="#26251f" stroke-width="1"/>'
+          +'<circle cx="50" cy="50" r="28" fill="none" stroke="#26251f" stroke-width="1"/>'
           +'<circle cx="50" cy="50" r="19" fill="'+col+'"/>'
           +'<circle cx="50" cy="50" r="3" fill="#0e0e0d"/></svg>';
       }
@@ -378,7 +388,7 @@
         b.setAttribute("aria-label", p ? "Pause" : "Play");
       }
       function reflect(){
-        var pl=document.getElementById("player"); if(pl) pl.classList.toggle("playing", playing);
+        var pl=document.getElementById("label"); if(pl) pl.classList.toggle("playing", playing);
         setText("pl-state", playing ? "Playing" : "Paused");
         setPlayIcon(playing);
       }
@@ -397,58 +407,74 @@
         clearInterval(schedTimer);
         reflect();
       }
-      function updateMeta(){
+      function centerCard(i, smooth){
+        var el=document.getElementById("carousel"); if(!el) return;
+        var c=el.querySelectorAll(".card")[i]; if(!c) return;
+        el.scrollTo({ left: c.offsetLeft - el.clientWidth/2 + c.offsetWidth/2, behavior: smooth?"smooth":"auto" });
+      }
+      function updateMeta(center){
         var r=RECORDS[cur];
         setText("np-title", r.t); setText("np-artist", r.a);
-        var disc=document.getElementById("disc"); if(disc) disc.innerHTML=vinyl(r.col);
-        var recs=document.querySelectorAll("#crate .rec");
-        for(var i=0;i<recs.length;i++) recs[i].classList.toggle("active", i===cur);
-        var act=recs[cur], cr=document.getElementById("crate");
-        if(act&&cr) cr.scrollTo({ left: act.offsetLeft - cr.clientWidth/2 + act.clientWidth/2, behavior:"smooth" });
+        var cards=document.querySelectorAll("#carousel .card");
+        for(var i=0;i<cards.length;i++) cards[i].classList.toggle("active", i===cur);
+        if(center) centerCard(cur, true);
       }
-      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(); if(!playing) startPlay(); }
-      function buildCrate(){
-        var c=document.getElementById("crate"); if(!c) return;
+      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(true); if(!playing) startPlay(); }
+      function buildCarousel(){
+        var el=document.getElementById("carousel"); if(!el) return;
         var html="";
         for(var i=0;i<RECORDS.length;i++){
           var r=RECORDS[i];
-          html+='<button class="rec" data-i="'+i+'"><span class="mini">'+vinyl(r.col)+'</span>'
-              +'<span class="rt">'+r.t+'</span><span class="ra">'+r.a+'</span></button>';
+          html+='<button class="card" data-i="'+i+'"><span class="vinyl">'+vinyl(r.col)+'</span>'
+              +'<span class="ct">'+r.t+'</span><span class="ca">'+r.a+'</span></button>';
         }
-        c.innerHTML=html;
-        var recs=c.querySelectorAll(".rec");
-        for(var j=0;j<recs.length;j++)
-          recs[j].addEventListener("click", function(){ selectRecord(+this.getAttribute("data-i")); });
+        el.innerHTML=html;
+        var cards=el.querySelectorAll(".card");
+        for(var j=0;j<cards.length;j++)
+          cards[j].addEventListener("click", function(){ selectRecord(+this.getAttribute("data-i")); });
       }
-      buildCrate(); updateMeta(); setPlayIcon(false);
+      buildCarousel(); updateMeta(false); setPlayIcon(false);
+      window.addEventListener("load", function(){ centerCard(cur, false); });
+
       (function(){
         var pb=document.getElementById("playbtn"); if(pb) pb.addEventListener("click", function(){ playing?stopPlay():startPlay(); });
         var pv=document.getElementById("prev");    if(pv) pv.addEventListener("click", function(){ selectRecord(cur-1); });
         var nx=document.getElementById("next");    if(nx) nx.addEventListener("click", function(){ selectRecord(cur+1); });
 
-        /* drag the record strip to slide through it (mouse + touch) */
-        var cr=document.getElementById("crate");
-        if(cr){
-          var down=false, sx=0, sl=0, moved=false;
-          cr.addEventListener("pointerdown", function(e){ down=true; moved=false; sx=e.clientX; sl=cr.scrollLeft;
-            cr.classList.add("dragging"); try{ cr.setPointerCapture(e.pointerId); }catch(x){} });
-          cr.addEventListener("pointermove", function(e){ if(!down) return; var dx=e.clientX-sx;
-            if(Math.abs(dx)>5) moved=true; cr.scrollLeft = sl - dx; });
-          var end=function(){ down=false; cr.classList.remove("dragging"); };
-          cr.addEventListener("pointerup", end); cr.addEventListener("pointercancel", end);
-          cr.addEventListener("click", function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+        /* drag with inertia + snap (page-flip feel) */
+        var el=document.getElementById("carousel"); if(!el) return;
+        var down=false, sx=0, sl=0, lastX=0, lastT=0, vel=0, moved=false, raf=0;
+        function stopRaf(){ if(raf){ cancelAnimationFrame(raf); raf=0; } }
+        function nearest(){
+          var cards=el.querySelectorAll(".card"), c0=el.scrollLeft+el.clientWidth/2, best=0, bd=1e9;
+          for(var i=0;i<cards.length;i++){ var cc=cards[i].offsetLeft+cards[i].offsetWidth/2, d=Math.abs(cc-c0); if(d<bd){bd=d;best=i;} }
+          return best;
         }
-
-        /* swipe the disc / track area left–right to switch records */
-        var mrow=document.querySelector(".player .media-row");
-        if(mrow){
-          var t=false, tx=0, ty=0;
-          mrow.addEventListener("pointerdown", function(e){ if(e.target.closest(".ctrl")) return; t=true; tx=e.clientX; ty=e.clientY; });
-          mrow.addEventListener("pointerup", function(e){ if(!t) return; t=false;
-            var dx=e.clientX-tx, dy=e.clientY-ty;
-            if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)) selectRecord(cur + (dx<0?1:-1)); });
-          mrow.addEventListener("pointercancel", function(){ t=false; });
+        function settle(){
+          el.style.scrollSnapType="x mandatory";
+          centerCard(nearest(), true);
         }
+        el.addEventListener("pointerdown", function(e){
+          down=true; moved=false; stopRaf(); sx=e.clientX; sl=el.scrollLeft;
+          lastX=e.clientX; lastT=performance.now(); vel=0;
+          el.style.scrollSnapType="none"; el.classList.add("dragging");
+          try{ el.setPointerCapture(e.pointerId); }catch(x){}
+        });
+        el.addEventListener("pointermove", function(e){
+          if(!down) return; var dx=e.clientX-sx; if(Math.abs(dx)>5) moved=true; el.scrollLeft=sl-dx;
+          var now=performance.now(), dt=now-lastT||16; vel=(e.clientX-lastX)/dt; lastX=e.clientX; lastT=now;
+        });
+        function release(){
+          if(!down) return; down=false; el.classList.remove("dragging");
+          var v=vel*16;
+          (function step(){
+            v*=0.93; el.scrollLeft-=v;
+            if(Math.abs(v)>0.6){ raf=requestAnimationFrame(step); } else { stopRaf(); settle(); }
+          })();
+        }
+        el.addEventListener("pointerup", release);
+        el.addEventListener("pointercancel", release);
+        el.addEventListener("click", function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
       })();
 
       /* Unity WebGL */
