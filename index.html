@@ -528,6 +528,7 @@
       /* ---- record label : real full tracks via the SoundCloud Widget API ---- */
       var GOLD = ["#b0894e","#8f6d38","#c9a15a","#d8cbb0","#a06a3a","#cdb98a"];
       var CAR_TAGS = ["Night drive","Coast highway","City cruise","Open road","Sunset run","Autobahn","Canyon run","Midnight lane"];
+      var CAR_TITLES = ["Redline","Full Throttle","Overdrive","Night Cruiser","Cruise Control","Highway Hum","Fast Lane","Horizon Line","Gearshift","Torque"];
       var PLAY_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
       var PAUSE_SVG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
       var RSOUNDS=[], playing=false, cur=0, widget=null;
@@ -563,7 +564,7 @@
       }
       function updateMeta(center){
         var s=RSOUNDS[cur];
-        if(s){ setText("np-title", s.title); setText("np-artist", CAR_TAGS[cur % CAR_TAGS.length]); }
+        if(s){ setText("np-title", CAR_TITLES[cur % CAR_TITLES.length]); setText("np-artist", CAR_TAGS[cur % CAR_TAGS.length]); }
         var cards=document.querySelectorAll("#carousel .card");
         for(var i=0;i<cards.length;i++) cards[i].classList.toggle("active", i===cur);
         if(center) centerCard(cur, true);
@@ -589,7 +590,7 @@
               +badge
               +'<span class="cover"><span class="pbtn">'+PLAY_SVG+'</span>'+pill+'</span></span>'
               +'<span class="cprog"><i></i></span>'
-              +'<span class="ct">'+esc(s.title)+'</span><span class="ca">'+esc(tag)+'</span>'
+              +'<span class="ct">'+esc(CAR_TITLES[i % CAR_TITLES.length])+'</span><span class="ca">'+esc(tag)+'</span>'
               +'<span class="buy"><span class="price">'+price+'</span></span></div>';
         }
         el.innerHTML=html;
