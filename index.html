@@ -7,20 +7,28 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ccircle%20cx='8'%20cy='8'%20r='7'%20fill='%23b0894e'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap">
     <style>
       :root{
         --paper:#f6f3ec; --panel:#ffffff; --cream:#efe9dd;
         --ink:#121110; --ink-2:#38352d; --dim:#8f8a7e;
         --gold:#b0894e; --gold-deep:#8f6d38; --gold-soft:#ece1cd;
         --line:#e2ddd1; --line-ink:#121110; --screen:#0a0a0a;
-        --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+        --font-display:"EB Garamond", Garamond, Georgia, serif;
         --cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23111110'/%3E%3Ccircle cx='11' cy='13' r='2.2' fill='%23fff'/%3E%3Ccircle cx='21' cy='13' r='2.2' fill='%23fff'/%3E%3Cpath d='M10 18.5 Q16 24.5 22 18.5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") 16 16, auto;
       }
       *{ box-sizing:border-box; }
       *{ cursor: var(--cursor) !important; }
+      body.smiley-on, body.smiley-on *{ cursor:none !important; }
+      #smcur{ position:fixed; left:0; top:0; width:32px; height:32px; margin:-16px 0 0 -16px;
+        z-index:100000; pointer-events:none; }
+      #smcur svg{ width:100%; height:100%; display:block; }
+      .smtrail{ position:fixed; width:16px; height:16px; margin:-8px 0 0 -8px; z-index:99998;
+        pointer-events:none; opacity:.42; animation:smfade .62s ease forwards; }
+      .smtrail svg{ width:100%; height:100%; display:block; }
+      @keyframes smfade{ to{ opacity:0; } }
       html,body{ margin:0; min-height:100%; color:var(--ink-2);
-        font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-family:"EB Garamond", Garamond, Georgia, "Times New Roman", serif;
         -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
       body{ background:var(--paper); }
       .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
@@ -276,6 +284,12 @@
       .tcap{ display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.28em;
         font-size:13px; font-weight:700; color:var(--dim); }
       .tcap b{ color:var(--gold); }
+      .ignition{ border:1px solid var(--ink); background:none; color:var(--ink); font:inherit; font-size:12px;
+        font-weight:700; letter-spacing:.24em; text-transform:uppercase; padding:16px 32px; cursor:pointer;
+        transition:background .2s, color .2s, transform .1s; }
+      .ignition:hover{ background:var(--ink); color:var(--paper); }
+      .ignition:active{ transform:scale(.96); }
+      .ignition.on{ background:var(--gold); border-color:var(--gold); color:#0e0e0d; }
 
       @keyframes spin{ to{ transform:rotate(360deg); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
@@ -470,7 +484,7 @@
           <circle cx="224" cy="98" r="2.5" fill="currentColor" stroke="none"/>
         </g>
       </svg>
-      <div class="tcap">Entering the&nbsp;<b>cockpit</b>&nbsp;…</div>
+      <button class="ignition" id="ignition">Press to start</button>
     </div>
 
     <div id="toast" aria-live="polite"></div>
@@ -702,7 +716,7 @@
       else { var _t=setInterval(function(){ if(window.SC){ clearInterval(_t); initSC(); } }, 150);
              setTimeout(function(){ clearInterval(_t); }, 9000); }
 
-      /* guided entry: click a record -> car transition overlay -> into the Unity demo */
+      /* guided entry: click a record -> car transition overlay -> PRESS TO START -> Unity demo */
       var unityInstance=null, entered=false;
       function startUnityDemo(){
         try{ if(unityInstance) unityInstance.SendMessage("[HMI Test Harness]", "WebStartDemo"); }catch(e){}
@@ -710,12 +724,39 @@
       function enterCockpit(){
         if(entered) return; entered=true;
         var t=document.getElementById("transition"); if(t) t.classList.add("show");
-        setTimeout(function(){
-          var deck=document.querySelector(".deck"); if(deck) deck.scrollIntoView({ behavior:"auto", block:"start" });
-          if(t) t.classList.remove("show");
-          startUnityDemo();
-        }, 3400);
       }
+      function proceedToCockpit(){
+        var deck=document.querySelector(".deck"); if(deck) deck.scrollIntoView({ behavior:"auto", block:"start" });
+        var t=document.getElementById("transition"); if(t) t.classList.remove("show");
+        startUnityDemo();
+      }
+      /* synthesized engine start: starter cranks + rev (Web Audio) */
+      function playEngine(){
+        var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return 1.2;
+        var ac=new AC(); if(ac.state==="suspended") ac.resume();
+        var master=ac.createGain(); master.gain.value=0.5; master.connect(ac.destination);
+        var t=ac.currentTime;
+        for(var i=0;i<3;i++){ var ct=t+i*0.16, o=ac.createOscillator(), g=ac.createGain();
+          o.type="sawtooth"; o.frequency.setValueAtTime(44, ct); o.frequency.linearRampToValueAtTime(72, ct+0.1);
+          g.gain.setValueAtTime(0.0001, ct); g.gain.linearRampToValueAtTime(0.4, ct+0.02); g.gain.exponentialRampToValueAtTime(0.0001, ct+0.14);
+          o.connect(g); g.connect(master); o.start(ct); o.stop(ct+0.16); }
+        var rt=t+0.52, o2=ac.createOscillator(), g2=ac.createGain(), f=ac.createBiquadFilter();
+        o2.type="sawtooth";
+        o2.frequency.setValueAtTime(58, rt); o2.frequency.exponentialRampToValueAtTime(230, rt+0.5); o2.frequency.exponentialRampToValueAtTime(120, rt+1.05);
+        f.type="lowpass"; f.frequency.setValueAtTime(400, rt); f.frequency.linearRampToValueAtTime(2200, rt+0.5); f.frequency.linearRampToValueAtTime(900, rt+1.05);
+        g2.gain.setValueAtTime(0.0001, rt); g2.gain.linearRampToValueAtTime(0.5, rt+0.1); g2.gain.setValueAtTime(0.5, rt+0.85); g2.gain.exponentialRampToValueAtTime(0.0001, rt+1.3);
+        o2.connect(f); f.connect(master); o2.start(rt); o2.stop(rt+1.35);
+        setTimeout(function(){ try{ ac.close(); }catch(e){} }, 2000);
+        return 1.5;
+      }
+      (function(){
+        var ig=document.getElementById("ignition"); if(!ig) return;
+        ig.addEventListener("click", function(){
+          if(ig.disabled) return; ig.disabled=true; ig.classList.add("on"); ig.textContent="Starting…";
+          var dur=playEngine();
+          setTimeout(proceedToCockpit, dur*1000);
+        });
+      })();
 
       /* ---- photo booth → driver license with a black smiley (all local, nothing uploaded) ---- */
       (function(){
@@ -787,21 +828,51 @@
           g.fillStyle="#f6f3ec"; g.fillRect(0,0,W,H);
           g.strokeStyle="#121110"; g.lineWidth=2; g.strokeRect(8,8,W-16,H-16);
           g.fillStyle="#121110"; g.fillRect(8,8,W-16,60);
-          g.fillStyle="#f6f3ec"; g.font="700 20px Helvetica,Arial,sans-serif"; g.textBaseline="middle";
+          g.fillStyle="#f6f3ec"; g.font="700 20px 'EB Garamond',Georgia,serif"; g.textBaseline="middle";
           g.fillText("AUTOMOTIVE HMI · DRIVER LICENSE", 30, 40);
           drawSmileyC(g, W-44, 38, 16, "#fff");
           g.drawImage(photoCanvas, 34, 96, 252, 316);
           g.strokeStyle="#121110"; g.lineWidth=1.5; g.strokeRect(34,96,252,316);
           var rows=[["NAME",licFields.name],["CLASS",licFields.cls],["VEHICLE",licFields.veh],["LICENCE NO.",licFields.lno],["ISSUED",licFields.issued],["EXPIRES",licFields.expires]];
           var x=320,y=118;
-          for(var i=0;i<rows.length;i++){ g.fillStyle="#8f8a7e"; g.font="700 12px Helvetica,Arial,sans-serif"; g.fillText(rows[i][0], x, y);
-            g.fillStyle="#121110"; g.font="700 24px Helvetica,Arial,sans-serif"; g.fillText(rows[i][1], x, y+24); y+=66; }
+          for(var i=0;i<rows.length;i++){ g.fillStyle="#8f8a7e"; g.font="700 12px 'EB Garamond',Georgia,serif"; g.fillText(rows[i][0], x, y);
+            g.fillStyle="#121110"; g.font="700 24px 'EB Garamond',Georgia,serif"; g.fillText(rows[i][1], x, y+24); y+=66; }
           g.strokeStyle="#e2ddd1"; g.lineWidth=1; g.beginPath(); g.moveTo(30,H-92); g.lineTo(W-30,H-92); g.stroke();
-          g.fillStyle="#8f8a7e"; g.font="700 12px Helvetica,Arial,sans-serif"; g.fillText("SIGNATURE", 34, H-70);
-          g.fillStyle="#121110"; g.font="italic 30px Georgia,serif"; g.fillText("Keep smiling", 34, H-40);
+          g.fillStyle="#8f8a7e"; g.font="700 12px 'EB Garamond',Georgia,serif"; g.fillText("SIGNATURE", 34, H-70);
+          g.fillStyle="#121110"; g.font="italic 30px 'EB Garamond',Georgia,serif"; g.fillText("Keep smiling", 34, H-40);
           drawSmileyC(g, W-70, H-64, 30, "#111110");
           var a=document.createElement("a"); a.download="driver-license.png"; a.href=c.toDataURL("image/png"); a.click();
         });
+      })();
+
+      /* living smiley cursor: follows the mouse, blinks when idle, opens mouth on click, leaves a trail */
+      (function(){
+        if(!window.matchMedia || !matchMedia("(pointer:fine)").matches) return;
+        var reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+        function face(state){
+          var eyes = state==="blink"
+            ? '<line x1="8" y1="13" x2="14" y2="13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><line x1="18" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>'
+            : '<circle cx="11" cy="13" r="2.2" fill="#fff"/><circle cx="21" cy="13" r="2.2" fill="#fff"/>';
+          var mouth = state==="open"
+            ? '<circle cx="16" cy="20" r="4" fill="#fff"/>'
+            : '<path d="M10 18.5 Q16 24.5 22 18.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>';
+          return '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#111110"/>'+eyes+mouth+'</svg>';
+        }
+        var cur=document.createElement("div"); cur.id="smcur"; cur.innerHTML=face("normal");
+        document.body.appendChild(cur); document.body.classList.add("smiley-on");
+        var x=innerWidth/2, y=innerHeight/2, tx=x, ty=y, s=1, pressed=false, blinking=false, lastTrail=0;
+        function render(){ cur.style.transform="translate("+x+"px,"+y+"px) scale("+s+")"; }
+        function trail(px,py){ var d=document.createElement("div"); d.className="smtrail"; d.innerHTML=face("normal");
+          d.style.left=px+"px"; d.style.top=py+"px"; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 620); }
+        document.addEventListener("mousemove", function(e){ tx=e.clientX; ty=e.clientY;
+          if(reduce){ x=tx; y=ty; render(); return; }
+          var now=performance.now(); if(now-lastTrail>60){ lastTrail=now; trail(e.clientX,e.clientY); } }, {passive:true});
+        document.addEventListener("mousedown", function(){ pressed=true; s=0.82; cur.innerHTML=face("open"); render(); });
+        document.addEventListener("mouseup", function(){ pressed=false; s=1; cur.innerHTML=face("normal"); render(); });
+        (function blinkLoop(){ setTimeout(function(){
+          if(!pressed){ blinking=true; cur.innerHTML=face("blink"); setTimeout(function(){ blinking=false; if(!pressed) cur.innerHTML=face("normal"); }, 130); }
+          blinkLoop(); }, 2600 + Math.random()*2800); })();
+        if(reduce){ render(); } else { (function loop(){ x+=(tx-x)*0.34; y+=(ty-y)*0.34; render(); requestAnimationFrame(loop); })(); }
       })();
 
       /* Unity WebGL */
