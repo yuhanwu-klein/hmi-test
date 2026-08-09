@@ -58,9 +58,9 @@
       .console{ flex:0 0 372px; max-width:372px; }
       .headunit{ background:var(--panel); border:1px solid var(--line-ink); height:100%;
         display:flex; flex-direction:column; }
-      .sec{ padding:18px 20px; border-top:1px solid var(--line); }
+      .sec{ padding:16px 20px; border-top:1px solid var(--line); }
       .sec:first-child{ border-top:none; }
-      .sechead{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:13px; }
+      .sechead{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
 
       .status{ display:flex; align-items:center; justify-content:space-between; }
       .status .clock{ color:var(--ink); font-weight:700; font-size:17px; letter-spacing:.04em; }
@@ -68,7 +68,7 @@
       .ic{ width:15px; height:15px; color:var(--dim); display:block; }
       .wx{ color:var(--ink); font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
 
-      .map-wrap{ position:relative; height:118px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
+      .map-wrap{ position:relative; height:100px; overflow:hidden; margin-bottom:14px; border:1px solid var(--line); }
       .map{ position:absolute; inset:0; width:100%; height:100%; }
       .navinfo{ display:flex; align-items:center; gap:13px; }
       .arrow{ width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
@@ -82,18 +82,17 @@
       .dist b{ font-size:24px; font-weight:700; color:var(--gold); }
       .dist span{ display:block; color:var(--dim); font-size:9.5px; letter-spacing:.2em; margin-top:3px; text-transform:uppercase; }
 
+      /* ---- label / record player ---- */
       .media-row{ display:flex; align-items:center; gap:14px; }
-      .art{ position:relative; width:48px; height:48px; flex:none; overflow:hidden; background:var(--ink); }
-      .eq{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; gap:3px; padding:12px; }
-      .eq i{ width:3px; height:100%; background:var(--gold);
-        transform:scaleY(.4); transform-origin:bottom; animation:eq 1s ease-in-out infinite; }
-      .eq i:nth-child(2){ animation-delay:.22s; } .eq i:nth-child(3){ animation-delay:.44s; }
+      .disc{ width:58px; height:58px; flex:none; }
+      .disc svg{ width:100%; height:100%; display:block; }
+      .playing .disc{ animation:spin 3s linear infinite; }
       .meta{ min-width:0; flex:1; }
       .mtitle{ font-weight:700; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .martist{ color:var(--dim); font-size:11.5px; margin-top:2px; letter-spacing:.02em; }
       .prog{ height:2px; background:var(--line); margin-top:10px; overflow:hidden; }
-      .prog>i{ display:block; height:100%; width:100%; background:var(--gold);
-        transform:scaleX(.42); transform-origin:left; transition:transform .9s linear; }
+      .prog>i{ display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:left; }
+      .playing .prog>i{ animation:prog 26s linear infinite; }
       .ctrl{ display:flex; gap:10px; color:var(--ink); }
       .ctrl button{ width:26px; height:26px; border:none; background:none; padding:0; cursor:pointer;
         color:inherit; display:flex; align-items:center; justify-content:center; transition:color .15s, transform .1s; }
@@ -102,6 +101,19 @@
       .ctrl button svg{ width:16px; height:16px; }
       .ctrl .play{ width:34px; height:34px; border:1px solid var(--line-ink); }
       .ctrl .play:hover{ background:var(--gold); border-color:var(--gold); color:#fff; }
+
+      .crate{ display:flex; gap:12px; margin-top:15px; overflow-x:auto; scrollbar-width:none; }
+      .crate::-webkit-scrollbar{ display:none; }
+      .rec{ flex:0 0 auto; width:66px; background:none; border:none; padding:0; cursor:pointer; color:inherit;
+        display:flex; flex-direction:column; align-items:center; gap:6px; }
+      .rec .mini{ width:54px; height:54px; display:block; transition:transform .15s; }
+      .rec .mini svg{ width:100%; height:100%; display:block; }
+      .rec:hover .mini{ transform:translateY(-3px); }
+      .rec .rt{ font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink);
+        max-width:66px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .rec .ra{ font-size:8px; color:var(--dim); letter-spacing:.04em; }
+      .rec.active .rt{ color:var(--gold); }
+      .rec.active .mini{ box-shadow:0 0 0 2px var(--gold); border-radius:50%; }
 
       .climate-row{ display:flex; align-items:center; justify-content:space-between; }
       .zone{ text-align:center; flex:1; }
@@ -125,9 +137,14 @@
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .hint b{ color:var(--gold); }
 
-      @keyframes eq{ 0%,100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
+      @keyframes spin{ to{ transform:rotate(360deg); } }
+      @keyframes prog{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
-      @media (prefers-reduced-motion:reduce){ .eq i{ animation:none; } .live{ animation:none; } }
+      @media (prefers-reduced-motion:reduce){
+        .playing .disc{ animation:none; }
+        .playing .prog>i{ animation:none; transform:scaleX(.5); }
+        .live{ animation:none; }
+      }
 
       @media (max-width:980px){
         .deck{ flex-direction:column; gap:44px; padding:40px 0 72px; }
@@ -187,16 +204,16 @@
             <div class="sec nav">
               <div class="sechead"><span class="label">Next turn</span></div>
               <div class="map-wrap">
-                <svg class="map" viewBox="0 0 360 118" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="360" height="118" fill="#efe9dd"/>
-                  <rect x="30" y="12" width="46" height="26" fill="#e2dbcb"/>
-                  <rect x="252" y="60" width="60" height="36" fill="#e2dbcb"/>
-                  <rect x="150" y="82" width="50" height="30" fill="#e2dbcb"/>
-                  <path d="M-20 86 L135 46 L225 74 L390 28" stroke="#d8d0bd" stroke-width="14" fill="none" stroke-linecap="round"/>
-                  <path d="M64 -10 L112 62 L90 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
-                  <path d="M275 -10 L237 54 L292 132" stroke="#d8d0bd" stroke-width="9" fill="none"/>
-                  <path d="M-20 86 L135 46 L225 74" stroke="#b0894e" stroke-width="5" fill="none" stroke-linecap="round"/>
-                  <circle cx="135" cy="46" r="7" fill="#b0894e" stroke="#efe9dd" stroke-width="3"/>
+                <svg class="map" viewBox="0 0 360 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="360" height="100" fill="#efe9dd"/>
+                  <rect x="30" y="8" width="46" height="24" fill="#e2dbcb"/>
+                  <rect x="252" y="52" width="60" height="32" fill="#e2dbcb"/>
+                  <rect x="150" y="70" width="50" height="28" fill="#e2dbcb"/>
+                  <path d="M-20 72 L135 38 L225 62 L390 22" stroke="#d8d0bd" stroke-width="13" fill="none" stroke-linecap="round"/>
+                  <path d="M64 -10 L112 52 L90 112" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M275 -10 L237 46 L292 112" stroke="#d8d0bd" stroke-width="9" fill="none"/>
+                  <path d="M-20 72 L135 38 L225 62" stroke="#b0894e" stroke-width="5" fill="none" stroke-linecap="round"/>
+                  <circle cx="135" cy="38" r="7" fill="#b0894e" stroke="#efe9dd" stroke-width="3"/>
                 </svg>
               </div>
               <div class="navinfo">
@@ -211,21 +228,22 @@
               </div>
             </div>
 
-            <div class="sec media">
-              <div class="sechead"><span class="label">Now playing</span></div>
+            <div class="sec player" id="player">
+              <div class="sechead"><span class="label">Label — now playing</span><span class="label" id="pl-state">Paused</span></div>
               <div class="media-row">
-                <div class="art" aria-hidden="true"><span class="eq"><i></i><i></i><i></i></span></div>
+                <div class="disc" id="disc" aria-hidden="true"></div>
                 <div class="meta">
-                  <div class="mtitle">Midnight City</div>
-                  <div class="martist">M83</div>
+                  <div class="mtitle" id="np-title">Amber Tide</div>
+                  <div class="martist" id="np-artist">Solenne</div>
                   <div class="prog"><i id="media-prog"></i></div>
                 </div>
                 <div class="ctrl">
-                  <button aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
-                  <button class="play" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
-                  <button aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
+                  <button id="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6l9 6V6z"/></svg></button>
+                  <button class="play" id="playbtn" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                  <button id="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l9 6-9 6z"/></svg></button>
                 </div>
               </div>
+              <div class="crate" id="crate"></div>
             </div>
 
             <div class="sec climate">
@@ -251,29 +269,28 @@
         </aside>
       </div>
 
-      <div class="hint">Press <b>`</b> to toggle controls — drag or click the cluster to interact</div>
+      <div class="hint">Press <b>`</b> to toggle controls — click a record to play music</div>
     </div>
 
     <script>
       var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
       var fmt = function (d) { return d.getHours() + ":" + pad(d.getMinutes()); };
+      function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent = t; }
 
       /* live clock */
-      function tick(){ var el=document.getElementById("hu-clock"); if(el) el.textContent=fmt(new Date()); }
+      function tick(){ setText("hu-clock", fmt(new Date())); }
       tick(); setInterval(tick,10000);
 
       /* live navigation (mock until the Unity cluster links up and drives it) */
-      var linked = false;             /* true once Unity pushes scenario state */
-      var dist = 2.3;                 /* miles remaining */
-      var speed = 34;                 /* avg mph */
+      var linked = false;
+      var dist = 2.3, speed = 34;
       function navTick(){
-        if (linked) return;           /* Unity is driving the nav now */
+        if (linked) return;
         dist = Math.round((dist - 0.1) * 10) / 10;
-        if (dist <= 0.2) dist = 3.4;  /* next leg */
+        if (dist <= 0.2) dist = 3.4;
         var mins = Math.max(1, Math.round(dist / speed * 60));
-        var arrive = new Date(Date.now() + mins * 60000);
-        var dEl=document.getElementById("nav-dist"); if(dEl) dEl.textContent = dist.toFixed(1);
-        var eEl=document.getElementById("nav-eta");  if(eEl) eEl.textContent = mins + " min · arrive " + fmt(arrive);
+        setText("nav-dist", dist.toFixed(1));
+        setText("nav-eta", mins + " min · arrive " + fmt(new Date(Date.now() + mins * 60000)));
       }
       navTick(); setInterval(navTick, 2600);
 
@@ -286,16 +303,13 @@
       };
       var WEATHER_LABEL = { Clear:"Clear", Rain:"Rain", Thunderstorm:"Storm", Sandstorm:"Sandstorm" };
       function setArrow(turn){ var a=document.querySelector(".arrow svg"); if(a) a.innerHTML = TURN_SVG[turn] || TURN_SVG.Straight; }
-      function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent = t; }
       window.HmiOnState = function (jsonStr) {
         var d; try { d = JSON.parse(jsonStr); } catch (e) { return; }
         linked = true;
         setText("hu-weather", (WEATHER_LABEL[d.weather] || "Clear") + " · 22°");
         if (d.navTurn === "None") {
           setArrow("Straight");
-          setText("nav-road", "No active route");
-          setText("nav-dist", "—");
-          setText("nav-eta", "Route guidance off");
+          setText("nav-road", "No active route"); setText("nav-dist", "—"); setText("nav-eta", "Route guidance off");
           return;
         }
         setArrow(d.navTurn);
@@ -307,13 +321,106 @@
         setText("nav-eta", mins + " min · arrive " + fmt(new Date(Date.now() + mins * 60000)));
       };
 
-      /* live media progress */
-      var mp = 0.42;
-      function mediaTick(){
-        mp += 0.03; if (mp > 1) mp = 0;
-        var m=document.getElementById("media-prog"); if(m) m.style.transform = "scaleX(" + mp.toFixed(3) + ")";
+      /* ---- record label: click a record to play generated music (no external files, no copyright) ---- */
+      var RECORDS = [
+        { t:"Amber Tide", a:"Solenne", col:"#b0894e", root:196.00, wave:"sawtooth", bpm:108, pat:[0,3,5,7,5,3,7,10], bass:[0,0,-2,3] },
+        { t:"Night Ferry", a:"Kavo",   col:"#8f6d38", root:174.61, wave:"triangle", bpm:120, pat:[0,5,7,10,7,5],     bass:[0,3,0,-2] },
+        { t:"Dune Radio",  a:"Halo",   col:"#c9a15a", root:146.83, wave:"square",   bpm:126, pat:[0,3,7,3,10,7],     bass:[0,0,3,5] },
+        { t:"Slow Gold",   a:"Maree",  col:"#d8cbb0", root:164.81, wave:"sine",     bpm:96,  pat:[0,7,5,3,5,7],       bass:[0,-2,0,3] }
+      ];
+      var SCALE = [0,3,5,7,10,12,15,17];
+      var AC=null, master=null, delay=null, playing=false, cur=0, stepN=0, nextT=0, schedTimer=null;
+
+      function vinyl(col){
+        return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+          +'<circle cx="50" cy="50" r="48" fill="#0e0e0d"/>'
+          +'<circle cx="50" cy="50" r="40" fill="none" stroke="#26251f" stroke-width="1"/>'
+          +'<circle cx="50" cy="50" r="31" fill="none" stroke="#26251f" stroke-width="1"/>'
+          +'<circle cx="50" cy="50" r="19" fill="'+col+'"/>'
+          +'<circle cx="50" cy="50" r="3" fill="#0e0e0d"/></svg>';
       }
-      setInterval(mediaTick, 900);
+      function ensureAudio(){
+        if (AC) return;
+        AC = new (window.AudioContext||window.webkitAudioContext)();
+        master = AC.createGain(); master.gain.value = 0.0001; master.connect(AC.destination);
+        delay = AC.createDelay(); delay.delayTime.value = 0.30;
+        var fb = AC.createGain(); fb.gain.value = 0.22;
+        delay.connect(fb); fb.connect(delay); delay.connect(master);
+      }
+      function noteFreq(root, semi){ return root * Math.pow(2, semi/12); }
+      function voice(time, freq, dur, wave, gv){
+        var o=AC.createOscillator(), g=AC.createGain(), f=AC.createBiquadFilter();
+        o.type=wave; o.frequency.value=freq; f.type="lowpass"; f.frequency.value=1600;
+        g.gain.setValueAtTime(0.0001, time);
+        g.gain.linearRampToValueAtTime(gv, time+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+        o.connect(f); f.connect(g); g.connect(master); g.connect(delay);
+        o.start(time); o.stop(time+dur+0.05);
+      }
+      function scheduler(){
+        var r=RECORDS[cur], spb=60/r.bpm/2;
+        while (nextT < AC.currentTime + 0.12){
+          var lead = r.wave==="square" ? 0.07 : 0.12;
+          voice(nextT, noteFreq(r.root, SCALE[r.pat[stepN % r.pat.length]]+12), spb*0.9, r.wave, lead);
+          if (stepN % 2 === 0)
+            voice(nextT, noteFreq(r.root/2, r.bass[(stepN/2) % r.bass.length]), spb*1.7, "triangle", 0.20);
+          stepN++; nextT += spb;
+        }
+      }
+      function setPlayIcon(p){
+        var b=document.getElementById("playbtn"); if(!b) return;
+        b.innerHTML = p
+          ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        b.setAttribute("aria-label", p ? "Pause" : "Play");
+      }
+      function reflect(){
+        var pl=document.getElementById("player"); if(pl) pl.classList.toggle("playing", playing);
+        setText("pl-state", playing ? "Playing" : "Paused");
+        setPlayIcon(playing);
+      }
+      function startPlay(){
+        ensureAudio(); if(AC.state==="suspended") AC.resume();
+        playing=true; nextT=AC.currentTime+0.06;
+        master.gain.cancelScheduledValues(AC.currentTime);
+        master.gain.setValueAtTime(Math.max(master.gain.value,0.0001), AC.currentTime);
+        master.gain.linearRampToValueAtTime(0.42, AC.currentTime+0.4);
+        clearInterval(schedTimer); schedTimer=setInterval(scheduler,25);
+        reflect();
+      }
+      function stopPlay(){
+        playing=false;
+        if(master){ master.gain.cancelScheduledValues(AC.currentTime); master.gain.linearRampToValueAtTime(0.0001, AC.currentTime+0.25); }
+        clearInterval(schedTimer);
+        reflect();
+      }
+      function updateMeta(){
+        var r=RECORDS[cur];
+        setText("np-title", r.t); setText("np-artist", r.a);
+        var disc=document.getElementById("disc"); if(disc) disc.innerHTML=vinyl(r.col);
+        var recs=document.querySelectorAll("#crate .rec");
+        for(var i=0;i<recs.length;i++) recs[i].classList.toggle("active", i===cur);
+      }
+      function selectRecord(i){ cur=(i+RECORDS.length)%RECORDS.length; stepN=0; updateMeta(); if(!playing) startPlay(); }
+      function buildCrate(){
+        var c=document.getElementById("crate"); if(!c) return;
+        var html="";
+        for(var i=0;i<RECORDS.length;i++){
+          var r=RECORDS[i];
+          html+='<button class="rec" data-i="'+i+'"><span class="mini">'+vinyl(r.col)+'</span>'
+              +'<span class="rt">'+r.t+'</span><span class="ra">'+r.a+'</span></button>';
+        }
+        c.innerHTML=html;
+        var recs=c.querySelectorAll(".rec");
+        for(var j=0;j<recs.length;j++)
+          recs[j].addEventListener("click", function(){ selectRecord(+this.getAttribute("data-i")); });
+      }
+      buildCrate(); updateMeta(); setPlayIcon(false);
+      (function(){
+        var pb=document.getElementById("playbtn"); if(pb) pb.addEventListener("click", function(){ playing?stopPlay():startPlay(); });
+        var pv=document.getElementById("prev");    if(pv) pv.addEventListener("click", function(){ selectRecord(cur-1); });
+        var nx=document.getElementById("next");    if(nx) nx.addEventListener("click", function(){ selectRecord(cur+1); });
+      })();
 
       /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
