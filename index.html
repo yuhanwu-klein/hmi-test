@@ -452,11 +452,6 @@
         }
         el.innerHTML=html;
         var cards=el.querySelectorAll(".card");
-        for(var j=0;j<cards.length;j++)
-          cards[j].addEventListener("click", function(){
-            var i=+this.getAttribute("data-i");
-            if(playing && i===cur) stopPlay(); else selectRecord(i);
-          });
         /* pop each record in, one by one (fade + rise) */
         for(var k=0;k<cards.length;k++)
           (function(c,idx){ setTimeout(function(){ c.classList.add("revealed"); }, 160 + idx*130); })(cards[k], k);
@@ -485,15 +480,22 @@
         el.addEventListener("pointerdown", function(e){
           down=true; moved=false; stopRaf(); sx=e.clientX; sl=el.scrollLeft;
           lastX=e.clientX; lastT=performance.now(); vel=0;
-          el.style.scrollSnapType="none"; el.classList.add("dragging");
-          try{ el.setPointerCapture(e.pointerId); }catch(x){}
         });
         el.addEventListener("pointermove", function(e){
-          if(!down) return; var dx=e.clientX-sx; if(Math.abs(dx)>5) moved=true; el.scrollLeft=sl-dx;
-          var now=performance.now(), dt=now-lastT||16; vel=(e.clientX-lastX)/dt; lastX=e.clientX; lastT=now;
+          if(!down) return; var dx=e.clientX-sx;
+          if(!moved && Math.abs(dx)>6){            /* only start a drag past the threshold */
+            moved=true; el.style.scrollSnapType="none"; el.classList.add("dragging");
+            try{ el.setPointerCapture(e.pointerId); }catch(x){}
+          }
+          if(moved){
+            el.scrollLeft=sl-dx;
+            var now=performance.now(), dt=now-lastT||16; vel=(e.clientX-lastX)/dt; lastX=e.clientX; lastT=now;
+          }
         });
         function release(){
-          if(!down) return; down=false; el.classList.remove("dragging");
+          if(!down) return; down=false;
+          if(!moved){ el.classList.remove("dragging"); return; }  /* a plain click, let it through */
+          el.classList.remove("dragging");
           var v=vel*16;
           (function step(){
             v*=0.93; el.scrollLeft-=v;
@@ -502,7 +504,13 @@
         }
         el.addEventListener("pointerup", release);
         el.addEventListener("pointercancel", release);
-        el.addEventListener("click", function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } }, true);
+        /* delegated click: play/pause the record that was clicked (suppressed right after a drag) */
+        el.addEventListener("click", function(e){
+          if(moved){ moved=false; return; }
+          var card = e.target.closest && e.target.closest(".card"); if(!card) return;
+          var i = +card.getAttribute("data-i");
+          if(playing && i===cur) stopPlay(); else selectRecord(i);
+        });
       })();
 
       /* Unity WebGL */
