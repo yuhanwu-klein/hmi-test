@@ -23,7 +23,7 @@
       .cockpit{ position:relative; min-height:100vh; display:flex; flex-direction:column;
         max-width:1500px; margin:0 auto; padding:0 44px; }
 
-      .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:4;
+      .topbar{ order:0; display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:4;
         padding:26px 0 20px; border-bottom:1px solid var(--line-ink); }
       .brand{ display:flex; align-items:center; gap:13px; font-weight:700; letter-spacing:.22em;
         font-size:15px; text-transform:uppercase; color:var(--ink); }
@@ -31,8 +31,8 @@
       .brand .mark{ width:24px; height:24px; }
       .byline{ color:var(--dim); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; }
 
-      .deck{ position:relative; z-index:3; display:flex; align-items:stretch;
-        justify-content:center; gap:36px; padding:64px 0 60px; }
+      .deck{ order:3; position:relative; z-index:3; display:flex; align-items:stretch;
+        justify-content:center; gap:36px; padding:64px 0 60px; border-top:1px solid var(--line-ink); }
 
       /* ---- instrument cluster (Unity) ---- */
       .cluster-pod{ position:relative; align-self:flex-start; flex:1 1 720px; max-width:840px; min-width:0; }
@@ -100,7 +100,7 @@
       .dock .app.active{ color:var(--gold); box-shadow:inset 0 2px 0 var(--gold); }
 
       /* ---- LABEL section : record carousel (real tracks via SoundCloud) ---- */
-      .labelsec{ position:relative; border-top:1px solid var(--line-ink); padding:46px 0 56px; }
+      .labelsec{ order:1; position:relative; padding:46px 0 56px; }
       .labelhead{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
       .lh-now{ text-align:center; min-width:0; flex:1; }
       .lh-now .mtitle{ font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.02em;
@@ -157,16 +157,43 @@
       .attrib{ text-align:center; margin-top:14px; color:var(--dim);
         font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; }
 
-      .footer{ border-top:1px solid var(--line); padding:18px 0 26px; text-align:center;
+      .footer{ order:4; border-top:1px solid var(--line); padding:18px 0 26px; text-align:center;
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .footer b{ color:var(--gold); }
 
+      /* ---- intro : line-art car driving into the cockpit ---- */
+      .intro{ order:2; border-top:1px solid var(--line-ink); padding:84px 0 92px; min-height:60vh;
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
+      .intro .stage2{ width:100%; max-width:520px; opacity:0; transform:translateY(26px);
+        transition:opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+      .intro.in .stage2{ opacity:1; transform:none; }
+      .road-car{ width:100%; height:auto; display:block; color:var(--ink); }
+      .carbob{ transform-box:fill-box; transform-origin:center; }
+      .intro.in .carbob{ animation:bob 2.4s ease-in-out infinite; }
+      .wheel-g{ transform-box:fill-box; transform-origin:center; }
+      .intro.in .wheel-g{ animation:spin 1.3s linear infinite; }
+      .road-dash{ stroke-dasharray:14 12; }
+      .intro.in .road-dash{ animation:road 1s linear infinite; }
+      .car-body{ stroke-dasharray:760; stroke-dashoffset:760; }
+      .intro.in .car-body{ animation:draw 1.5s ease forwards; }
+      .introcap{ display:flex; flex-direction:column; align-items:center; gap:8px;
+        text-transform:uppercase; letter-spacing:.2em; font-size:11px; font-weight:700; color:var(--dim);
+        opacity:0; transition:opacity .8s ease .25s; }
+      .intro.in .introcap{ opacity:1; }
+      .introcap svg{ width:18px; height:18px; color:var(--gold); animation:bob 1.8s ease-in-out infinite; }
+
       @keyframes spin{ to{ transform:rotate(360deg); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
+      @keyframes road{ to{ stroke-dashoffset:-26; } }
+      @keyframes draw{ to{ stroke-dashoffset:0; } }
+      @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
       @media (prefers-reduced-motion:reduce){
         .card.now .disc{ animation:none; }
         .card{ transition:none; }
         .live{ animation:none; }
+        .intro.in .carbob, .intro.in .wheel-g, .intro.in .road-dash, .intro.in .car-body, .introcap svg{ animation:none; }
+        .car-body{ stroke-dashoffset:0; }
+        .intro .stage2, .intro .introcap{ transition:none; opacity:1; transform:none; }
       }
 
       @media (max-width:980px){
@@ -294,6 +321,26 @@
         <iframe id="scframe" allow="autoplay" title="SoundCloud player"
           src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fnoartmusic&color=%23b0894e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_teaser=false&visual=false"></iframe>
         <div class="attrib">Full tracks streamed via SoundCloud — No Art</div>
+      </section>
+
+      <section class="intro">
+        <div class="stage2">
+          <svg class="road-car" viewBox="0 0 300 150" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <line x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="1.5" opacity=".25"/>
+            <line class="road-dash" x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="2"/>
+            <g class="carbob">
+              <path class="car-body" d="M36 112 L36 98 Q36 92 44 92 L104 92 L126 66 Q130 62 136 62 L186 62 Q193 62 198 68 L216 92 L258 96 Q266 97 266 105 L266 112" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="car-body" d="M36 112 L88 112 M132 112 L196 112 M240 112 L266 112" stroke-width="3" stroke-linecap="round"/>
+              <path d="M132 66 L132 92 M170 62 L170 92" stroke-width="2"/>
+              <g class="wheel-g"><circle cx="110" cy="112" r="16" stroke-width="3"/><line x1="110" y1="97" x2="110" y2="127" stroke-width="2"/><line x1="95" y1="112" x2="125" y2="112" stroke-width="2"/><circle cx="110" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
+              <g class="wheel-g"><circle cx="218" cy="112" r="16" stroke-width="3"/><line x1="218" y1="97" x2="218" y2="127" stroke-width="2"/><line x1="203" y1="112" x2="233" y2="112" stroke-width="2"/><circle cx="218" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
+              <circle cx="270" cy="94" r="2.5" fill="currentColor" stroke="none"/>
+            </g>
+          </svg>
+        </div>
+        <div class="introcap">The cockpit
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
       </section>
 
       <div class="footer">Press <b>`</b> to toggle cluster controls — click a record to play</div>
@@ -493,6 +540,16 @@
       if(window.SC){ initSC(); }
       else { var _t=setInterval(function(){ if(window.SC){ clearInterval(_t); initSC(); } }, 150);
              setTimeout(function(){ clearInterval(_t); }, 9000); }
+
+      /* intro car animation: play when it scrolls into view */
+      (function(){
+        var intro=document.querySelector(".intro"); if(!intro) return;
+        if(!("IntersectionObserver" in window)){ intro.classList.add("in"); return; }
+        var io=new IntersectionObserver(function(es){
+          for(var i=0;i<es.length;i++){ if(es[i].isIntersecting){ intro.classList.add("in"); } }
+        }, { threshold:0.35 });
+        io.observe(intro);
+      })();
 
       /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
