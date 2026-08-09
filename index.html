@@ -162,26 +162,23 @@
         color:var(--dim); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
       .footer b{ color:var(--gold); }
 
-      /* ---- intro : line-art car driving into the cockpit ---- */
-      .intro{ order:2; border-top:1px solid var(--line-ink); padding:84px 0 92px; min-height:60vh;
-        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
-      .intro .stage2{ width:100%; max-width:520px; opacity:0; transform:translateY(26px);
-        transition:opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
-      .intro.in .stage2{ opacity:1; transform:none; }
-      .road-car{ width:100%; height:auto; display:block; color:var(--ink); }
+      /* ---- transition : full-screen line-art car overlay when a record starts ---- */
+      #transition{ position:fixed; inset:0; z-index:9999; background:var(--paper);
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:34px;
+        opacity:0; visibility:hidden; transition:opacity .5s ease, visibility 0s linear .5s; }
+      #transition.show{ opacity:1; visibility:visible; transition:opacity .5s ease; }
+      .road-car{ width:min(520px,78vw); height:auto; display:block; color:var(--ink); }
       .carbob{ transform-box:fill-box; transform-origin:center; }
-      .intro.in .carbob{ animation:bob 2.4s ease-in-out infinite; }
       .wheel-g{ transform-box:fill-box; transform-origin:center; }
-      .intro.in .wheel-g{ animation:spin 1.3s linear infinite; }
       .road-dash{ stroke-dasharray:14 12; }
-      .intro.in .road-dash{ animation:road 1s linear infinite; }
       .car-body{ stroke-dasharray:760; stroke-dashoffset:760; }
-      .intro.in .car-body{ animation:draw 1.5s ease forwards; }
-      .introcap{ display:flex; flex-direction:column; align-items:center; gap:8px;
-        text-transform:uppercase; letter-spacing:.2em; font-size:11px; font-weight:700; color:var(--dim);
-        opacity:0; transition:opacity .8s ease .25s; }
-      .intro.in .introcap{ opacity:1; }
-      .introcap svg{ width:18px; height:18px; color:var(--gold); animation:bob 1.8s ease-in-out infinite; }
+      #transition.show .carbob{ animation:bob 2.4s ease-in-out infinite; }
+      #transition.show .wheel-g{ animation:spin 1s linear infinite; }
+      #transition.show .road-dash{ animation:road .7s linear infinite; }
+      #transition.show .car-body{ animation:draw 1.4s ease forwards; }
+      .tcap{ display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.24em;
+        font-size:11px; font-weight:700; color:var(--dim); }
+      .tcap b{ color:var(--gold); }
 
       @keyframes spin{ to{ transform:rotate(360deg); } }
       @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.55); opacity:.4; } }
@@ -192,9 +189,8 @@
         .card.now .disc{ animation:none; }
         .card{ transition:none; }
         .live{ animation:none; }
-        .intro.in .carbob, .intro.in .wheel-g, .intro.in .road-dash, .intro.in .car-body, .introcap svg{ animation:none; }
+        #transition.show .carbob, #transition.show .wheel-g, #transition.show .road-dash, #transition.show .car-body{ animation:none; }
         .car-body{ stroke-dashoffset:0; }
-        .intro .stage2, .intro .introcap{ transition:none; opacity:1; transform:none; }
       }
 
       @media (max-width:980px){
@@ -324,27 +320,23 @@
         <div class="attrib">Full tracks streamed via SoundCloud — No Art</div>
       </section>
 
-      <section class="intro">
-        <div class="stage2">
-          <svg class="road-car" viewBox="0 0 300 150" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <line x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="1.5" opacity=".25"/>
-            <line class="road-dash" x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="2"/>
-            <g class="carbob">
-              <path class="car-body" d="M36 112 L36 98 Q36 92 44 92 L104 92 L126 66 Q130 62 136 62 L186 62 Q193 62 198 68 L216 92 L258 96 Q266 97 266 105 L266 112" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path class="car-body" d="M36 112 L88 112 M132 112 L196 112 M240 112 L266 112" stroke-width="3" stroke-linecap="round"/>
-              <path d="M132 66 L132 92 M170 62 L170 92" stroke-width="2"/>
-              <g class="wheel-g"><circle cx="110" cy="112" r="16" stroke-width="3"/><line x1="110" y1="97" x2="110" y2="127" stroke-width="2"/><line x1="95" y1="112" x2="125" y2="112" stroke-width="2"/><circle cx="110" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
-              <g class="wheel-g"><circle cx="218" cy="112" r="16" stroke-width="3"/><line x1="218" y1="97" x2="218" y2="127" stroke-width="2"/><line x1="203" y1="112" x2="233" y2="112" stroke-width="2"/><circle cx="218" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
-              <circle cx="270" cy="94" r="2.5" fill="currentColor" stroke="none"/>
-            </g>
-          </svg>
-        </div>
-        <div class="introcap">The cockpit
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-      </section>
-
       <div class="footer">Press <b>`</b> to toggle cluster controls — click a record to play</div>
+    </div>
+
+    <div id="transition" aria-hidden="true">
+      <svg class="road-car" viewBox="0 0 300 150" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="1.5" opacity=".25"/>
+        <line class="road-dash" x1="6" y1="126" x2="294" y2="126" stroke="currentColor" stroke-width="2"/>
+        <g class="carbob">
+          <path class="car-body" d="M36 112 L36 98 Q36 92 44 92 L104 92 L126 66 Q130 62 136 62 L186 62 Q193 62 198 68 L216 92 L258 96 Q266 97 266 105 L266 112" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="car-body" d="M36 112 L88 112 M132 112 L196 112 M240 112 L266 112" stroke-width="3" stroke-linecap="round"/>
+          <path d="M132 66 L132 92 M170 62 L170 92" stroke-width="2"/>
+          <g class="wheel-g"><circle cx="110" cy="112" r="16" stroke-width="3"/><line x1="110" y1="97" x2="110" y2="127" stroke-width="2"/><line x1="95" y1="112" x2="125" y2="112" stroke-width="2"/><circle cx="110" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
+          <g class="wheel-g"><circle cx="218" cy="112" r="16" stroke-width="3"/><line x1="218" y1="97" x2="218" y2="127" stroke-width="2"/><line x1="203" y1="112" x2="233" y2="112" stroke-width="2"/><circle cx="218" cy="112" r="3.5" fill="currentColor" stroke="none"/></g>
+          <circle cx="270" cy="94" r="2.5" fill="currentColor" stroke="none"/>
+        </g>
+      </svg>
+      <div class="tcap">Entering the&nbsp;<b>cockpit</b>&nbsp;…</div>
     </div>
 
     <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -468,7 +460,8 @@
       }
       function toggleIndex(i){
         if(!widget) return;
-        if(playing && i===cur) widget.pause(); else playIndex(i);
+        if(playing && i===cur){ widget.pause(); }
+        else { playIndex(i); enterCockpit(); }
       }
 
       /* transport + gestures */
@@ -542,15 +535,20 @@
       else { var _t=setInterval(function(){ if(window.SC){ clearInterval(_t); initSC(); } }, 150);
              setTimeout(function(){ clearInterval(_t); }, 9000); }
 
-      /* intro car animation: play when it scrolls into view */
-      (function(){
-        var intro=document.querySelector(".intro"); if(!intro) return;
-        if(!("IntersectionObserver" in window)){ intro.classList.add("in"); return; }
-        var io=new IntersectionObserver(function(es){
-          for(var i=0;i<es.length;i++){ if(es[i].isIntersecting){ intro.classList.add("in"); } }
-        }, { threshold:0.35 });
-        io.observe(intro);
-      })();
+      /* guided entry: click a record -> car transition overlay -> into the Unity demo */
+      var unityInstance=null, entered=false;
+      function startUnityDemo(){
+        try{ if(unityInstance) unityInstance.SendMessage("[HMI Test Harness]", "WebStartDemo"); }catch(e){}
+      }
+      function enterCockpit(){
+        if(entered) return; entered=true;
+        var t=document.getElementById("transition"); if(t) t.classList.add("show");
+        setTimeout(function(){
+          var deck=document.querySelector(".deck"); if(deck) deck.scrollIntoView({ behavior:"auto", block:"start" });
+          if(t) t.classList.remove("show");
+          startUnityDemo();
+        }, 3400);
+      }
 
       /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
@@ -570,7 +568,8 @@
         createUnityInstance(canvas, config, function (p) {
           document.querySelector("#bar > i").style.transform = "scaleX(" + p + ")";
           document.querySelector("#pct").textContent = "LOADING " + Math.round(p * 100) + "%";
-        }).then(function () {
+        }).then(function (u) {
+          unityInstance = u;
           var l = document.querySelector("#loading");
           l.style.opacity = "0";
           setTimeout(function () { l.style.display = "none"; }, 550);
