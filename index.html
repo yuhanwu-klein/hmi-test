@@ -211,7 +211,49 @@
         transition:opacity .3s ease, transform .3s ease; }
       #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-      .footer{ order:4; border-top:1px solid var(--line); padding:20px 0 28px; text-align:center;
+      /* ---- photo booth + driving license ---- */
+      .btn{ border:1px solid var(--line-ink); background:none; color:var(--ink); font:inherit; font-size:11px;
+        font-weight:700; text-transform:uppercase; letter-spacing:.16em; padding:12px 22px; cursor:pointer;
+        transition:background .15s, color .15s; }
+      .btn:hover{ background:var(--ink); color:var(--paper); }
+      .btn.primary{ background:var(--ink); color:var(--paper); }
+      .btn.primary:hover{ background:var(--gold); border-color:var(--gold); color:#0e0e0d; }
+      .booth{ order:4; border-top:1px solid var(--line-ink); padding:60px 0 78px;
+        display:flex; flex-direction:column; align-items:center; gap:24px; }
+      .boothhead{ text-align:center; }
+      .boothhead .h{ font-family:var(--font-display); font-size:30px; color:var(--ink); margin-top:12px; }
+      .booth-stage{ display:flex; flex-direction:column; align-items:center; gap:20px; }
+      .camera{ position:relative; width:320px; max-width:84vw; aspect-ratio:3/4; background:var(--screen);
+        border:1px solid var(--line-ink); overflow:hidden; }
+      .camera video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); display:block; }
+      .camera .ph{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+        color:var(--dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.2em; line-height:1.9; padding:24px; }
+      .camera::before,.camera::after{ content:""; position:absolute; width:8px; height:8px; background:var(--paper); z-index:2; }
+      .camera::before{ top:6px; left:6px; } .camera::after{ bottom:6px; right:6px; }
+      .count{ position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+        font-family:var(--font-display); font-weight:600; font-size:130px; color:#fff; background:rgba(0,0,0,.35); z-index:3; }
+      .count.on{ display:flex; }
+      .boothctrl{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
+      .nameinput{ border:1px solid var(--line-ink); background:var(--panel); color:var(--ink); font:inherit;
+        font-size:12px; text-transform:uppercase; letter-spacing:.12em; padding:11px 14px; width:210px; }
+      .nameinput::placeholder{ color:var(--dim); }
+
+      .license{ position:relative; width:460px; max-width:92vw; background:var(--panel); border:1px solid var(--line-ink);
+        box-shadow:0 20px 50px rgba(16,32,64,.14); }
+      .lic-top{ background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:space-between;
+        padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+      .lic-body{ display:flex; gap:16px; padding:16px; }
+      .lic-photo{ width:126px; height:158px; flex:none; object-fit:cover; border:1px solid var(--line-ink);
+        background:var(--screen); filter:grayscale(1) contrast(1.06); }
+      .lic-fields{ flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+      .lic-field .k{ font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); }
+      .lic-field .v{ font-size:14px; font-weight:700; color:var(--ink); text-transform:uppercase; letter-spacing:.04em;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .lic-foot{ display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid var(--line); padding:12px 16px; }
+      .lic-foot .k{ font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); }
+      .lic-sign{ font-family:var(--font-display); font-style:italic; font-size:22px; color:var(--ink); margin-top:2px; }
+
+      .footer{ order:5; border-top:1px solid var(--line); padding:20px 0 28px; text-align:center;
         color:var(--dim); font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
       .footer::before{ content:""; display:inline-block; width:7px; height:7px; background:var(--ink);
         margin-right:10px; vertical-align:1px; }
@@ -389,6 +431,27 @@
         <iframe id="scframe" allow="autoplay" title="SoundCloud player"
           src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fnoartmusic&color=%23b0894e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_teaser=false&visual=false"></iframe>
         <div class="attrib">Soundtrack for the drive — full tracks streamed via SoundCloud</div>
+      </section>
+
+      <section class="booth" id="booth">
+        <div class="boothhead"><span class="label">Photo booth</span><div class="h">Get your driver license</div></div>
+        <div class="booth-stage" id="boothstage">
+          <div class="camera" id="camera">
+            <video id="cam" playsinline muted></video>
+            <div class="ph" id="camph">Camera off — press start<br>photo stays on your device</div>
+            <div class="count" id="count"></div>
+          </div>
+          <div class="boothctrl">
+            <input class="nameinput" id="licname" maxlength="18" placeholder="Your name" aria-label="Your name">
+            <button class="btn primary" id="startbtn">Start camera</button>
+            <button class="btn" id="shootbtn" style="display:none">Take photo</button>
+          </div>
+        </div>
+        <div class="license" id="license" style="display:none"></div>
+        <div class="boothctrl" id="licctrl" style="display:none">
+          <button class="btn" id="retakebtn">Retake</button>
+          <button class="btn primary" id="savebtn">Save card</button>
+        </div>
       </section>
 
       <div class="footer">Press <b>`</b> to toggle cluster controls — click a record to play</div>
@@ -652,6 +715,93 @@
           startUnityDemo();
         }, 3400);
       }
+
+      /* ---- photo booth → driver license with a black smiley (all local, nothing uploaded) ---- */
+      (function(){
+        var camStream=null, photoCanvas=null, licFields=null;
+        var v=document.getElementById("cam");
+        var startBtn=document.getElementById("startbtn"), shootBtn=document.getElementById("shootbtn");
+        var retakeBtn=document.getElementById("retakebtn"), saveBtn=document.getElementById("savebtn");
+        function smiley(sz,col){ var f=(col==="#fff")?"#111110":"#fff";
+          return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 32 32" style="display:block">'
+            +'<circle cx="16" cy="16" r="15" fill="'+col+'"/>'
+            +'<circle cx="11" cy="13" r="2.2" fill="'+f+'"/><circle cx="21" cy="13" r="2.2" fill="'+f+'"/>'
+            +'<path d="M10 18.5 Q16 24.5 22 18.5" fill="none" stroke="'+f+'" stroke-width="2.4" stroke-linecap="round"/></svg>'; }
+        function pad2(n){ return n<10?"0"+n:""+n; }
+        function dstr(d){ return d.getFullYear()+"."+pad2(d.getMonth()+1)+"."+pad2(d.getDate()); }
+
+        if(startBtn) startBtn.addEventListener("click", function(){
+          if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast("Camera not supported"); return; }
+          navigator.mediaDevices.getUserMedia({ video:{ facingMode:"user" }, audio:false }).then(function(st){
+            camStream=st; v.srcObject=st; v.play();
+            document.getElementById("camph").style.display="none";
+            startBtn.style.display="none"; shootBtn.style.display="";
+          }).catch(function(){ showToast("Camera blocked — allow access"); });
+        });
+
+        function capture(){
+          var vw=v.videoWidth, vh=v.videoHeight; if(!vw) return;
+          var c=document.createElement("canvas"); c.width=480; c.height=600;
+          var g=c.getContext("2d"); var tr=480/600, sx,sy,sw,sh;
+          if(vw/vh > tr){ sh=vh; sw=vh*tr; sx=(vw-sw)/2; sy=0; } else { sw=vw; sh=vw/tr; sx=0; sy=(vh-sh)/2; }
+          g.filter="grayscale(1) contrast(1.06)"; g.translate(480,0); g.scale(-1,1);
+          g.drawImage(v, sx,sy,sw,sh, 0,0,480,600);
+          photoCanvas=c; return c.toDataURL("image/png");
+        }
+        function buildLicense(url){
+          var name=(document.getElementById("licname").value||"").trim().toUpperCase()||"DRIVER";
+          var now=new Date(), exp=new Date(now.getFullYear()+5, now.getMonth(), now.getDate());
+          var lno="HMI-"+Math.floor(100000+Math.random()*899999);
+          licFields={ name:name, cls:"COCKPIT", veh:"ANY · EV", lno:lno, issued:dstr(now), expires:dstr(exp) };
+          function fld(k,val){ return '<div class="lic-field"><div class="k">'+k+'</div><div class="v">'+val.replace(/</g,"")+'</div></div>'; }
+          var lic=document.getElementById("license");
+          lic.innerHTML =
+            '<div class="lic-top"><span>Automotive HMI · Driver License</span>'+smiley(20,"#fff")+'</div>'
+            +'<div class="lic-body"><img class="lic-photo" src="'+url+'" alt="">'
+            +'<div class="lic-fields">'+fld("Name",name)+fld("Class",licFields.cls)+fld("Vehicle",licFields.veh)
+            +fld("Licence no.",lno)+fld("Issued",licFields.issued)+fld("Expires",licFields.expires)+'</div></div>'
+            +'<div class="lic-foot"><div><div class="k">Signature</div><div class="lic-sign">Keep smiling</div></div>'
+            +smiley(46,"#111110")+'</div>';
+          document.getElementById("boothstage").style.display="none";
+          lic.style.display=""; document.getElementById("licctrl").style.display="";
+        }
+        function runCountdown(cb){ var el=document.getElementById("count"), n=3; el.classList.add("on"); el.textContent=n;
+          var t=setInterval(function(){ n--; if(n<=0){ clearInterval(t); el.classList.remove("on"); cb(); } else el.textContent=n; }, 650); }
+
+        if(shootBtn) shootBtn.addEventListener("click", function(){ runCountdown(function(){ var u=capture(); if(u) buildLicense(u); }); });
+        if(retakeBtn) retakeBtn.addEventListener("click", function(){
+          document.getElementById("license").style.display="none";
+          document.getElementById("licctrl").style.display="none";
+          document.getElementById("boothstage").style.display="";
+        });
+
+        function drawSmileyC(g,cx,cy,r,col){ var f=(col==="#fff")?"#111110":"#fff";
+          g.fillStyle=col; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill();
+          g.fillStyle=f; g.beginPath(); g.arc(cx-r*0.32,cy-r*0.18,r*0.14,0,7); g.fill();
+          g.beginPath(); g.arc(cx+r*0.32,cy-r*0.18,r*0.14,0,7); g.fill();
+          g.strokeStyle=f; g.lineWidth=r*0.15; g.lineCap="round"; g.beginPath(); g.arc(cx,cy+r*0.05,r*0.5,0.15*Math.PI,0.85*Math.PI); g.stroke(); }
+        if(saveBtn) saveBtn.addEventListener("click", function(){
+          if(!photoCanvas || !licFields) return;
+          var W=920,H=560, c=document.createElement("canvas"); c.width=W; c.height=H; var g=c.getContext("2d");
+          g.fillStyle="#f6f3ec"; g.fillRect(0,0,W,H);
+          g.strokeStyle="#121110"; g.lineWidth=2; g.strokeRect(8,8,W-16,H-16);
+          g.fillStyle="#121110"; g.fillRect(8,8,W-16,60);
+          g.fillStyle="#f6f3ec"; g.font="700 20px Helvetica,Arial,sans-serif"; g.textBaseline="middle";
+          g.fillText("AUTOMOTIVE HMI · DRIVER LICENSE", 30, 40);
+          drawSmileyC(g, W-44, 38, 16, "#fff");
+          g.drawImage(photoCanvas, 34, 96, 252, 316);
+          g.strokeStyle="#121110"; g.lineWidth=1.5; g.strokeRect(34,96,252,316);
+          var rows=[["NAME",licFields.name],["CLASS",licFields.cls],["VEHICLE",licFields.veh],["LICENCE NO.",licFields.lno],["ISSUED",licFields.issued],["EXPIRES",licFields.expires]];
+          var x=320,y=118;
+          for(var i=0;i<rows.length;i++){ g.fillStyle="#8f8a7e"; g.font="700 12px Helvetica,Arial,sans-serif"; g.fillText(rows[i][0], x, y);
+            g.fillStyle="#121110"; g.font="700 24px Helvetica,Arial,sans-serif"; g.fillText(rows[i][1], x, y+24); y+=66; }
+          g.strokeStyle="#e2ddd1"; g.lineWidth=1; g.beginPath(); g.moveTo(30,H-92); g.lineTo(W-30,H-92); g.stroke();
+          g.fillStyle="#8f8a7e"; g.font="700 12px Helvetica,Arial,sans-serif"; g.fillText("SIGNATURE", 34, H-70);
+          g.fillStyle="#121110"; g.font="italic 30px Georgia,serif"; g.fillText("Keep smiling", 34, H-40);
+          drawSmileyC(g, W-70, H-64, 30, "#111110");
+          var a=document.createElement("a"); a.download="driver-license.png"; a.href=c.toDataURL("image/png"); a.click();
+        });
+      })();
 
       /* Unity WebGL */
       var canvas = document.querySelector("#unity-canvas");
