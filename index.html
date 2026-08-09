@@ -126,8 +126,10 @@
       .carousel::-webkit-scrollbar{ display:none; }
       .card{ flex:0 0 auto; width:210px; scroll-snap-align:center; background:none; border:none; padding:0;
         cursor:pointer; color:inherit; display:flex; flex-direction:column; align-items:center; gap:16px;
-        opacity:.5; transition:opacity .25s; }
-      .card.active{ opacity:1; }
+        opacity:0; transform:translateY(22px) scale(.9);
+        transition:opacity .5s ease, transform .55s cubic-bezier(.22,1.15,.36,1); }
+      .card.revealed{ opacity:.5; transform:none; }
+      .card.revealed.active{ opacity:1; }
       .card .vinyl{ width:200px; height:200px; display:block; transition:transform .25s; }
       .card .vinyl svg{ width:100%; height:100%; display:block; }
       .card.active .vinyl{ transform:scale(1.06); }
@@ -148,6 +150,7 @@
       @media (prefers-reduced-motion:reduce){
         #label.playing .card.active .vinyl{ animation:none; }
         #label.playing .lprog>i{ animation:none; transform:scaleX(.5); }
+        .card{ transition:none; }
         .live{ animation:none; }
       }
 
@@ -432,6 +435,9 @@
         var cards=el.querySelectorAll(".card");
         for(var j=0;j<cards.length;j++)
           cards[j].addEventListener("click", function(){ selectRecord(+this.getAttribute("data-i")); });
+        /* pop each record in, one by one (fade + rise) */
+        for(var k=0;k<cards.length;k++)
+          (function(c,idx){ setTimeout(function(){ c.classList.add("revealed"); }, 160 + idx*130); })(cards[k], k);
       }
       buildCarousel(); updateMeta(false); setPlayIcon(false);
       window.addEventListener("load", function(){ centerCard(cur, false); });
